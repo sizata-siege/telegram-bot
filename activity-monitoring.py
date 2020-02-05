@@ -20,7 +20,8 @@ create_tb = """create table users(
 def checkUsername(user):
     db = sqlite3.connect("bot.db")
     cursor = db.cursor()
-    select = "select * from users where username = {}".format(user)
+    select = "select * from users where %s = username" % user
+    print(select)
     try:
         cursor.execute(select)
         result = cursor.fetchone()
@@ -28,18 +29,18 @@ def checkUsername(user):
         return result
     except:
         print("Error selection !")
-        cursor.execute(create_tb)
+        #cursor.execute(create_tb)
         print("Created table !")
         return 0
 def scoreText(user, text):
     db = sqlite3.connect("bot.db")
     cursor = db.cursor()
-    select = "select * from users where username = {}".format(user)
+    select = "select * from users where username = %s" % user
     try:
         cursor.execute(select)
         result = cursor.fetchone()
         nosm = result[1] + 1
-        update = "update users set nosm = {} where username = {}".format(nosm, user)
+        update = "update users set nosm = %s where username = %s" % (nosm, user)
         cursor.execute(update)
         db.commit()
         print("Updated!")
@@ -49,7 +50,7 @@ def scoreText(user, text):
 def addUser(user):
     db = sqlite3.connect("bot.db")
     cursor = db.cursor()
-    add = "insert into users VALUES ({}, 0, 0)".format(user)
+    add = "insert into users VALUES (%s, 0, 0)" % user
     try:
         cursor.execute(add)
         db.commit()
