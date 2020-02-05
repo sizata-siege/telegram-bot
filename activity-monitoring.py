@@ -20,7 +20,7 @@ create_tb = """create table users(
 def checkUsername(user):
     db = sqlite3.connect("bot.db")
     cursor = db.cursor()
-    select = "select * from users where %s = username" % user
+    select = "select * from users where username = '%s'" % user
     print(select)
     try:
         cursor.execute(select)
