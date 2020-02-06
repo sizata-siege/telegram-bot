@@ -19,7 +19,6 @@ con = mysql.connector.connect(
 def checkUsername(user):
     cursor = con.cursor()
     select = "select * from bot_users where username = '%s'" % user
-    print("select * from bot_users where username = '%s'" % user)
     try:
         cursor.execute(select)
         result = cursor.fetchone()
@@ -45,7 +44,7 @@ def scoreText(user, text):
         con.rollback()
 def addUser(user):
     cursor = con.cursor()
-    add = "insert into bot_users VALUES ('%s', 0, 0)" % user
+    add = "insert into bot_users VALUES ('%s', 0, 0, 0)" % user
     try:
         cursor.execute(add)
         con.commit()
