@@ -8,20 +8,18 @@ dp = updater.dispatcher
 import logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 #-------------------------Connect to DataBase-------------------------#
-import sqlite3
-db = sqlite3.connect("bot.db")
-cursor = db.cursor()
-create_tb = """create table users(
-    username TEXT(100) PRIMARY key,
-    nosm INTEGER,
-    nofm INTEGER)"""
-
+import mysql.connector
+con = mysql.connector.connect(
+    user = "xoEe4hNkKr",
+    password = "dxFTpB2adi",
+    host = "remotemysql.com",
+    database = "xoEe4hNkKr"
+)
 #-------------------------Functions-------------------------#
 def checkUsername(user):
-    db = sqlite3.connect("bot.db")
-    cursor = db.cursor()
-    select = "select * from users where username = '%s'" % user
-    print(select)
+    cursor = con.cursor()
+    select = "select * from bot_users where username = '%s'" % user
+    print("select * from bot_users where username = '%s'" % user)
     try:
         cursor.execute(select)
         result = cursor.fetchone()
@@ -29,35 +27,32 @@ def checkUsername(user):
         return result
     except:
         print("Error selection !")
-        #cursor.execute(create_tb)
-        print("Created table !")
         return 0
+
 def scoreText(user, text):
-    db = sqlite3.connect("bot.db")
-    cursor = db.cursor()
-    select = "select * from users where username = %s" % user
+    cursor = con.cursor()
+    select = "select * from bot_users where username = '%s'" % user
     try:
         cursor.execute(select)
         result = cursor.fetchone()
         nosm = result[1] + 1
-        update = "update users set nosm = %s where username = %s" % (nosm, user)
+        update = "update bot_users set nosm = %s where username = '%s'" % (nosm, user)
         cursor.execute(update)
-        db.commit()
+        con.commit()
         print("Updated!")
     except:
         print("Error updating!")
-        db.rollback()
+        con.rollback()
 def addUser(user):
-    db = sqlite3.connect("bot.db")
-    cursor = db.cursor()
-    add = "insert into users VALUES (%s, 0, 0)" % user
+    cursor = con.cursor()
+    add = "insert into bot_users VALUES ('%s', 0, 0)" % user
     try:
         cursor.execute(add)
-        db.commit()
+        con.commit()
         print("added!")
     except:
         print("Error add!")
-        db.rollback()
+        con.rollback()
 def Start(update, context):
     chatid = update.effective_chat.id
     context.bot.sendMessage(chat_id = update.effective_chat.id, text = "✅ Bot started ✅")
