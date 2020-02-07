@@ -91,15 +91,19 @@ def scoreReply(user, text, isGroup):
             print("Error updating!")
             con.rollback()
 def addUser(user):
-    cursor = con.cursor()
-    add = "insert into bot_users VALUES ('%s', 0, 0, 0, 0)" % user
-    try:
-        cursor.execute(add)
-        con.commit()
-        print("added %s to database!" % user)
-    except:
-        print("Error add!")
-        con.rollback()
+    if user:
+        cursor = con.cursor()
+        add = "insert into bot_users VALUES ('%s', 0, 0, 0, 0)" % user
+        try:
+            cursor.execute(add)
+            con.commit()
+            print("added %s to database!" % user)
+        except:
+            print("Error add!")
+            con.rollback()
+    else:
+        context.bot.sendMessage(chat_id = update.effective_chat.id, text = "⚠️U don't have username.⚠️\npls set a username first" % name)
+        print("Not added. Invalid username!")
 def userStats():
     cursor = con.cursor()
     select = "select * from bot_users"
@@ -191,7 +195,7 @@ def Mystats(update, context):
         isGroup = 0
         print (chatid, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ", update.message.from_user.username, " >>> MyStats in PV")
         cursor = con.cursor()
-        select = "select * from bot_users"
+        select = "select * from bot_users where username = '%s'" % user
         try:
             cursor.execute(select)
             result = cursor.fetchone()
@@ -231,13 +235,37 @@ def Create(update, context):
 def Status(update, context):
     context.bot.sendMessage(chat_id = update.effective_chat.id, text = "✅ Bot is Online! ✅")
     print (update.effective_chat.id, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ", update.message.from_user.username, " >>> Status")
+def ResetAll(update, context):
+    cursor = con.cursor()
+    select = "select * from bot_users"
+    try:
+        cursor.execute(select)
+        results = cursor.fetchall()
+        for result in results:
+            nosm = 0
+            nofm = 0
+            nosw = 0
+            norm = 0
+            update_s = "update bot_users set nosm = %s" % nosm
+            update_f = "update bot_users set nofm = %s" % nofm
+            update_w = "update bot_users set nosw = %s" % nosw
+            update_r = "update bot_users set norm = %s" % norm
+            cursor.execute(update_s)
+            cursor.execute(update_f)
+            cursor.execute(update_w)
+            cursor.execute(update_r)
+            con.commit()
+        print("Reset All")
+    except:
+        print("Error updating!")
+        con.rollback()
 #-------------------------Handlers-------------------------#
 start_handler = CommandHandler('start', Start)
 stats_handler = CommandHandler('stats', Stats)
 mystats_handler = CommandHandler('mystats', Mystats)
 create_handler = CommandHandler('create', Create)
 status_handler = CommandHandler('status', Status)
-#reset_all_handler = CommandHandler('reset_all', ResetAll)
+reset_all_handler = CommandHandler('reset_all', ResetAll)
 #manager_handler = CommandHandler('XYZ', AddAdmin)
 text_handler = MessageHandler(Filters.text, Text)
 forwarded_handler = MessageHandler(Filters.forwarded, Forwarded)
@@ -248,7 +276,7 @@ dp.add_handler(stats_handler)
 dp.add_handler(mystats_handler)
 dp.add_handler(create_handler)
 dp.add_handler(status_handler)
-#dp.add_handler(reset_all_handler)
+dp.add_handler(reset_all_handler)
 dp.add_handler(reply_handler)
 dp.add_handler(forwarded_handler)
 dp.add_handler(text_handler)
