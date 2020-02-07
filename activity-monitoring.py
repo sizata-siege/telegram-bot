@@ -8,13 +8,20 @@ dp = updater.dispatcher
 import logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 #-------------------------Connect to DataBase-------------------------#
-import mysql.connector
-con = mysql.connector.connect(
-    user = "xoEe4hNkKr",
-    password = "dxFTpB2adi",
-    host = "remotemysql.com",
-    database = "xoEe4hNkKr"
-)
+import sqlite3
+con = sqlite3.connect("bot.db", check_same_thread=False)
+
+# import mysql.connector
+# con = mysql.connector.connect(
+#     user = "xoEe4hNkKr",
+#     password = "dxFTpB2adi",
+#     host = "remotemysql.com",
+#     database = "xoEe4hNkKr"
+#     # user = "sizata99",
+#     # password = "sizata709152331402",
+#     # host = "sizata99.mysql.pythonanywhere-services.com",
+#     # database = "sizata99$bot"
+# )
 #-------------------------Functions-------------------------#
 def checkUsername(user):
     cursor = con.cursor()
@@ -209,10 +216,27 @@ def Reply(update, context):
         addUser(username)
         context.bot.sendMessage(chat_id = update.effective_chat.id, text = "✅ User %s added to Controled users ✅" % username)
         scoreReply(username, text, isGroup)
+def Create(update, context):
+    create = """create table bot_users(
+        username TEXT(100),
+        nosm INTEGER,
+        nofm INTEGER,
+        nosw INTEGER,
+        norm INTEGER)"""
+    cursor = con.cursor()
+    cursor.execute(create)
+    con.commit()
+    print("Created Table!!!")
+    context.bot.sendMessage(chat_id = update.effective_chat.id, text = "Created table!!!")
+def Status(update, context):
+    context.bot.sendMessage(chat_id = update.effective_chat.id, text = "✅ Bot is Online! ✅")
+    print (update.effective_chat.id, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ", update.message.from_user.username, " >>> Status")
 #-------------------------Handlers-------------------------#
 start_handler = CommandHandler('start', Start)
 stats_handler = CommandHandler('stats', Stats)
 mystats_handler = CommandHandler('mystats', Mystats)
+create_handler = CommandHandler('create', Create)
+status_handler = CommandHandler('status', Status)
 #reset_all_handler = CommandHandler('reset_all', ResetAll)
 #manager_handler = CommandHandler('XYZ', AddAdmin)
 text_handler = MessageHandler(Filters.text, Text)
@@ -222,6 +246,8 @@ reply_handler = MessageHandler(Filters.reply, Reply)
 dp.add_handler(start_handler)
 dp.add_handler(stats_handler)
 dp.add_handler(mystats_handler)
+dp.add_handler(create_handler)
+dp.add_handler(status_handler)
 #dp.add_handler(reset_all_handler)
 dp.add_handler(reply_handler)
 dp.add_handler(forwarded_handler)
