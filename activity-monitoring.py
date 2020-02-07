@@ -85,7 +85,7 @@ def scoreReply(user, text, isGroup):
             con.rollback()
 def addUser(user):
     cursor = con.cursor()
-    add = "insert into bot_users VALUES ('%s', 0, 0, 0)" % user
+    add = "insert into bot_users VALUES ('%s', 0, 0, 0, 0)" % user
     try:
         cursor.execute(add)
         con.commit()
@@ -167,7 +167,7 @@ def Stats(update, context):
                 nofm = result[2]
                 nosw = result[3]
                 norm = result[4]
-                context.bot.sendMessage(chat_id = update.effective_chat.id, text = "%s➡️(%s) messages🔸(%s) Forwards🔸(%s) Replied🔸(%s) words total" % (user, nosm, nofm, norm, nosw))
+                context.bot.sendMessage(chat_id = update.effective_chat.id, text = "%s➡️(%s) messages🔸(%s) Forwards🔸(%s) Replies🔸(%s) words total" % (user, nosm, nofm, norm, nosw))
         except:
             print("Error printing!")
     else:
