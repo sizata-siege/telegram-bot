@@ -1,7 +1,9 @@
 #IN THE NAME OF GOD
 #Activity monitoring bot v1
+#/echo
 
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 Token = "656547710:AAFciOC_C4Ch1KJDjRu0CTKc_UJT1aR3tms"
 updater = Updater(token = Token, use_context = True)
 dp = updater.dispatcher
@@ -129,7 +131,15 @@ def Start(update, context):
         context.bot.sendMessage(chat_id = update.effective_chat.id, text = "⚠️All messages will effect users activity⚠️")
         print (chatid, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ", update.message.from_user.username, " >>> start in group")
     else:
-        context.bot.sendMessage(chat_id = update.effective_chat.id, text = "Hi %s! 👋\nHow can I help U?" % name)
+        btns = [
+            [InlineKeyboardButton("میزان فعالیت من", callback_data = "Mystats")],
+            [InlineKeyboardButton("Test Option 1", callback_data = "1"),
+            InlineKeyboardButton("Test Option 2", callback_data = "2")]
+        ]
+        start_markup = InlineKeyboardMarkup(btns)
+        context.bot.sendMessage(chat_id = update.effective_chat.id, 
+        text = "Hi %s! 👋\nHow can I help U?\n/mystats >>> فعالیت من در تبادل اطلاعات" % name, 
+        reply_markup = start_markup)
         print (chatid, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ", update.message.from_user.username, " >>> start in PV")
 def Text(update, context):
     if int(update.effective_chat.id) < 0:
@@ -192,6 +202,7 @@ def Mystats(update, context):
         print (chatid, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ", update.message.from_user.username, " >>> MyStats in group")
         context.bot.sendMessage(chat_id = update.effective_chat.id, text = "🚫You can't use this command in the group🚫")
     else:
+        query = update.callback_query
         isGroup = 0
         print (chatid, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ", update.message.from_user.username, " >>> MyStats in PV")
         cursor = con.cursor()
@@ -263,6 +274,7 @@ def ResetAll(update, context):
 start_handler = CommandHandler('start', Start)
 stats_handler = CommandHandler('stats', Stats)
 mystats_handler = CommandHandler('mystats', Mystats)
+mystats_btn_handler = CallbackQueryHandler(Mystats)
 create_handler = CommandHandler('create', Create)
 status_handler = CommandHandler('status', Status)
 reset_all_handler = CommandHandler('reset_all', ResetAll)
