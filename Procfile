@@ -1,1 +1,1 @@
-python activity-monitoring.py
+python3 activity-monitoring.py
