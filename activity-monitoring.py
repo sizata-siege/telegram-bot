@@ -64,6 +64,25 @@ def scoreForwarded(user, text, isGroup):
         except:
             print("Error updating!")
             con.rollback()
+def scoreReply(user, text, isGroup):
+    if isGroup:
+        cursor = con.cursor()
+        select = "select * from bot_users where username = '%s'" % user
+        try:
+            cursor.execute(select)
+            result = cursor.fetchone()
+            norm = result[4] + 1
+            words = text.count(" ") + 1
+            nosw = result[3] + words
+            update_r = "update bot_users set norm = %s where username = '%s'" % (norm, user)
+            update_w = "update bot_users set nosw = %s where username = '%s'" % (nosw, user)
+            cursor.execute(update_r)
+            cursor.execute(update_w)
+            con.commit()
+            print("Replied > %s > %s words" % (user, words))
+        except:
+            print("Error updating!")
+            con.rollback()
 def addUser(user):
     cursor = con.cursor()
     add = "insert into bot_users VALUES ('%s', 0, 0, 0)" % user
@@ -85,6 +104,7 @@ def userStats():
             nosm = result[1]
             nofm = result[2]
             nosw = result[3]
+            norm = result[4]
             report[result] = "%s > %s messages & %s Forwards & %s words total" % (user, nosm, nofm, nosw)
             print(report[result])
     except:
@@ -133,7 +153,7 @@ def Stats(update, context):
     if int(update.effective_chat.id) < 0:
         isGroup = 1
         print (chatid, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ", update.message.from_user.username, " >>> stats in group")
-    elif update.effective_chat.id == 753039129:
+    elif update.effective_chat.id == 753039129:# or update.effective_chat.id == :
         isGroup = 0
         print (chatid, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ", update.message.from_user.username, " >>> stats in PV")
         cursor = con.cursor()
@@ -146,7 +166,8 @@ def Stats(update, context):
                 nosm = result[1]
                 nofm = result[2]
                 nosw = result[3]
-                context.bot.sendMessage(chat_id = update.effective_chat.id, text = "%s➡️(%s) messages🔸(%s) Forwards🔸(%s) words total" % (user, nosm, nofm, nosw))
+                norm = result[4]
+                context.bot.sendMessage(chat_id = update.effective_chat.id, text = "%s➡️(%s) messages🔸(%s) Forwards🔸(%s) Replied🔸(%s) words total" % (user, nosm, nofm, norm, nosw))
         except:
             print("Error printing!")
     else:
@@ -170,11 +191,24 @@ def Mystats(update, context):
             user = result[0]
             nosm = result[1]
             nofm = result[2]
-            nosw = result[3]
-            context.bot.sendMessage(chat_id = update.effective_chat.id, text = "%s➡️(%s) messages🔸(%s) Forwards" % (user, nosm, nofm))
+            norm = result[4]
+            context.bot.sendMessage(chat_id = update.effective_chat.id, text = "%s➡️(%s) messages🔸(%s) Forwards🔸(%s) Replies" % (user, nosm, nofm, norm))
         except:
             print("Error printing!")
             context.bot.sendMessage(chat_id = update.effective_chat.id, text = "❌Failed to send your data❌")
+def Reply(update, context):
+    if int(update.effective_chat.id) < 0:
+        isGroup = 1
+    else:
+        isGroup = 0
+    username = update.message.from_user.username
+    text = update.message.text
+    if checkUsername(username):
+        scoreReply(username, text, isGroup)
+    else:
+        addUser(username)
+        context.bot.sendMessage(chat_id = update.effective_chat.id, text = "✅ User %s added to Controled users ✅" % username)
+        scoreReply(username, text, isGroup)
 #-------------------------Handlers-------------------------#
 start_handler = CommandHandler('start', Start)
 stats_handler = CommandHandler('stats', Stats)
@@ -183,11 +217,13 @@ mystats_handler = CommandHandler('mystats', Mystats)
 #manager_handler = CommandHandler('XYZ', AddAdmin)
 text_handler = MessageHandler(Filters.text, Text)
 forwarded_handler = MessageHandler(Filters.forwarded, Forwarded)
+reply_handler = MessageHandler(Filters.reply, Reply)
 #-------------------------Add Handlers-------------------------#
 dp.add_handler(start_handler)
 dp.add_handler(stats_handler)
 dp.add_handler(mystats_handler)
 #dp.add_handler(reset_all_handler)
+dp.add_handler(reply_handler)
 dp.add_handler(forwarded_handler)
 dp.add_handler(text_handler)
 #-------------------------||||||||||||-------------------------#
