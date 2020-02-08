@@ -1,9 +1,11 @@
 #IN THE NAME OF GOD
 #Activity monitoring bot v1
 #/echo
-
+#-------------------------Import tools-------------------------#
+from time import sleep
+#-------------------------Import Telegram-------------------------#
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler
-from telegram import InlineKeyboardMarkup, InlineKeyboardButton
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup
 Token = "656547710:AAFciOC_C4Ch1KJDjRu0CTKc_UJT1aR3tms"
 updater = Updater(token = Token, use_context = True)
 dp = updater.dispatcher
@@ -127,9 +129,12 @@ def Start(update, context):
     user = update.message.from_user.username
     name = update.message.from_user.first_name
     if int(chatid) < 0:
-        context.bot.sendMessage(chat_id = update.effective_chat.id, text = "✅ Bot started ✅")
-        context.bot.sendMessage(chat_id = update.effective_chat.id, text = "⚠️All messages will effect users activity⚠️")
-        print (chatid, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ", update.message.from_user.username, " >>> start in group")
+        if update.effective_chat.id == 753039129 or update.effective_chat.id == 106652269:
+            context.bot.sendMessage(chat_id = update.effective_chat.id, text = "✅ Bot started ✅")
+            context.bot.sendMessage(chat_id = update.effective_chat.id, text = "⚠️All messages will effect users activity⚠️")
+            print (chatid, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ", update.message.from_user.username, " >>> start in group")
+        else:
+            context.bot.sendMessage(chat_id = update.effective_chat.id, text = "🚫You can't start the bot in group🚫")
     else:
         btns = [
             [InlineKeyboardButton("میزان فعالیت من", callback_data = "Mystats")],
@@ -270,11 +275,32 @@ def ResetAll(update, context):
     except:
         print("Error updating!")
         con.rollback()
+def Op(update, context):
+    key = [
+        [InlineKeyboardButton("option1", callback_data = "100"),
+        InlineKeyboardButton("option1", callback_data = "200")],
+        [InlineKeyboardButton("option1", callback_data = "300"),
+        InlineKeyboardButton("option1", callback_data = "400")],
+        [InlineKeyboardButton("option1", callback_data = "500")],
+        [InlineKeyboardButton("option1", callback_data = "600")],
+        [InlineKeyboardButton("option1", callback_data = "700")]
+    ]
+    printkey = InlineKeyboardMarkup(key)
+    context.bot.sendMessage(chat_id = update.effective_chat.id, 
+        text = "Hi! 👋\nHow can I help U?\n/mystats >>> فعالیت من در تبادل اطلاعات", 
+        reply_markup = printkey)
+def Rep(update, context):
+    query = update.callback_query
+    if query.data == "100":
+        print("100 selected")
+        Mystats()
 #-------------------------Handlers-------------------------#
 start_handler = CommandHandler('start', Start)
 stats_handler = CommandHandler('stats', Stats)
 mystats_handler = CommandHandler('mystats', Mystats)
-mystats_btn_handler = CallbackQueryHandler(Mystats)
+option_handler = CommandHandler('op', Op)
+rep_handler = CallbackQueryHandler(Rep)
+#mystats_btn_handler = CallbackQueryHandler(Mystats)
 create_handler = CommandHandler('create', Create)
 status_handler = CommandHandler('status', Status)
 reset_all_handler = CommandHandler('reset_all', ResetAll)
@@ -292,6 +318,12 @@ dp.add_handler(reset_all_handler)
 dp.add_handler(reply_handler)
 dp.add_handler(forwarded_handler)
 dp.add_handler(text_handler)
+dp.add_handler(option_handler)
+dp.add_handler(rep_handler)
 #-------------------------||||||||||||-------------------------#
 updater.start_polling()
 updater.idle()
+#-------------------------||||||||||||-------------------------#
+#CLI robots
+#API robots
+#what is CLI?
