@@ -174,7 +174,7 @@ def Stats(update, context):
     if int(update.effective_chat.id) < 0:
         isGroup = 1
         print (chatid, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ", update.message.from_user.username, " >>> stats in group")
-    elif update.effective_chat.id == 753039129:# or update.effective_chat.id == :
+    elif update.effective_chat.id == 753039129 or update.effective_chat.id == 106652269:
         isGroup = 0
         print (chatid, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ", update.message.from_user.username, " >>> stats in PV")
         cursor = con.cursor()
