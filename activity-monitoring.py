@@ -1,7 +1,11 @@
 #IN THE NAME OF GOD
 #Activity monitoring bot v1
 #/echo
+<<<<<<< HEAD
 version = 3.0
+=======
+version = 2.0
+>>>>>>> b9f002c5d24f7ba9d679dd2daae4fb9d1c1fc594
 #-------------------------Import tools-------------------------#
 from time import sleep
 #-------------------------Import Telegram-------------------------#
@@ -333,7 +337,11 @@ def Version(chatid, context):
     context.bot.sendMessage(chat_id = chatid, text = "@activity_monitoring_bot  version %s" % version)
 def Rep(update, context):
     query = update.callback_query
+<<<<<<< HEAD
     chatid = update.message.chat_id
+=======
+    chatid = 
+>>>>>>> b9f002c5d24f7ba9d679dd2daae4fb9d1c1fc594
     if query.data == "Mystats":
         mystats(update, context)
     elif query.data == "test":
