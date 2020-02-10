@@ -329,6 +329,11 @@ def MeasurMethod(chatid, context):
     text = "به زودی روش محاسبه امتیاز قرار میگیرد")
 def Version(chatid, context):
     context.bot.sendMessage(chat_id = chatid, text = "@activity_monitoring_bot  version %s" % version)
+def Echo(update, context):
+    text = update.message.text[5: ]
+    context.bot.deleteMessage(chat_id = update.effective_chat.id, message_id = update.message.message_id)
+    context.bot.sendMessage(chat_id = update.effective_chat.id, text = text)
+    print("Echo by %s >>> %s" % (update.message.from_user.username, text))
 def Rep(update, context):
     query = update.callback_query
     chatid = query.message.chat_id
@@ -348,10 +353,10 @@ stats_handler = CommandHandler('stats', Stats)
 mystats_handler = CommandHandler('mystats', Mystats)
 option_handler = CommandHandler('op', Op)
 rep_handler = CallbackQueryHandler(Rep)
-#mystats_btn_handler = CallbackQueryHandler(Mystats)
 create_handler = CommandHandler('create', Create)
 status_handler = CommandHandler('status', Status)
 reset_all_handler = CommandHandler('reset_all', ResetAll)
+echo_handler = CommandHandler('echo', Echo)
 #manager_handler = CommandHandler('XYZ', AddAdmin)
 text_handler = MessageHandler(Filters.text, Text)
 forwarded_handler = MessageHandler(Filters.forwarded, Forwarded)
@@ -368,6 +373,7 @@ dp.add_handler(forwarded_handler)
 dp.add_handler(text_handler)
 dp.add_handler(option_handler)
 dp.add_handler(rep_handler)
+dp.add_handler(echo_handler)
 #-------------------------||||||||||||-------------------------#
 updater.start_polling()
 updater.idle()
