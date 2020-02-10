@@ -1,6 +1,7 @@
 #IN THE NAME OF GOD
 #Activity monitoring bot v1
 #/echo
+version = 2.0
 #-------------------------Import tools-------------------------#
 from time import sleep
 #-------------------------Import Telegram-------------------------#
@@ -137,13 +138,16 @@ def Start(update, context):
             context.bot.sendMessage(chat_id = update.effective_chat.id, text = "🚫You can't start the bot in group🚫")
     else:
         btns = [
-            [InlineKeyboardButton("میزان فعالیت من", callback_data = "Mystats")],
-            [InlineKeyboardButton("Test Option 1", callback_data = "1"),
-            InlineKeyboardButton("Test Option 2", callback_data = "2")]
+            [InlineKeyboardButton("📉 میزان فعالیت من 📈", callback_data = "Mystats")],
+            [InlineKeyboardButton("📊 روش محاسبه فعالیت 📊", callback_data = "MeasurMethod")],
+            [InlineKeyboardButton("👑رتبه من👑", callback_data = "Myrank"),
+            InlineKeyboardButton("🆕ورژن ربات🆕", callback_data = "Version")],
+            [InlineKeyboardButton("Test Option 1", callback_data = "test"),
+            InlineKeyboardButton("Test Option 2", callback_data = "test")]
         ]
         start_markup = InlineKeyboardMarkup(btns)
         context.bot.sendMessage(chat_id = update.effective_chat.id, 
-        text = "Hi %s! 👋\nHow can I help U?\n/mystats >>> فعالیت من در تبادل اطلاعات" % name, 
+        text = "Hi %s! 👋\nHow can I help U?" % name, 
         reply_markup = start_markup)
         print (chatid, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ", update.message.from_user.username, " >>> start in PV")
 def Text(update, context):
@@ -173,6 +177,7 @@ def Forwarded(update, context):
         context.bot.sendMessage(chat_id = update.effective_chat.id, text = "✅ User %s added to Controled users ✅" % username)
         scoreForwarded(username, text, isGroup)
 def Stats(update, context):
+    print("Yes!")
     chatid = update.effective_chat.id
     user = update.message.from_user.username
     text = update.message.text
@@ -201,7 +206,6 @@ def Stats(update, context):
 def Mystats(update, context):
     chatid = update.effective_chat.id
     user = update.message.from_user.username
-    text = update.message.text
     if int(update.effective_chat.id) < 0:
         isGroup = 1
         print (chatid, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ", update.message.from_user.username, " >>> MyStats in group")
@@ -223,6 +227,30 @@ def Mystats(update, context):
         except:
             print("Error printing!")
             context.bot.sendMessage(chat_id = update.effective_chat.id, text = "❌Failed to send your data❌")
+def mystats(update, context):
+    query = update.callback_query
+    user = query.from_user.username
+    chatid = query.message.chat_id
+    #user = update.message.from_user.username
+    if int(chatid) < 0:
+        print (chatid, " ", user, " ", " >>> MyStats in group")
+        context.bot.sendMessage(chat_id = chatid, text = "🚫You can't use this command in the group🚫")
+    else:
+        query = update.callback_query
+        print (chatid, " ", user, " ", " >>> MyStats in PV")
+        cursor = con.cursor()
+        select = "select * from bot_users where username = '%s'" % user
+        try:
+            cursor.execute(select)
+            result = cursor.fetchone()
+            user = result[0]
+            nosm = result[1]
+            nofm = result[2]
+            norm = result[4]
+            context.bot.sendMessage(chat_id = chatid, text = "%s➡️(%s) messages🔸(%s) Forwards🔸(%s) Replies" % (user, nosm, nofm, norm))
+        except:
+            print("Error printing!")
+            context.bot.sendMessage(chat_id = chatid, text = "❌Failed to send your data❌")
 def Reply(update, context):
     if int(update.effective_chat.id) < 0:
         isGroup = 1
@@ -289,11 +317,33 @@ def Op(update, context):
     context.bot.sendMessage(chat_id = update.effective_chat.id, 
         text = "Hi! 👋\nHow can I help U?\n/mystats >>> فعالیت من در تبادل اطلاعات", 
         reply_markup = printkey)
+def test(update, context):
+    query = update.callback_query
+    user = query.from_user.username
+    chatid = query.message.chat_id
+    context.bot.sendMessage(chat_id = chatid, text = "😊 This is a test option, so it doesn't work! 😁")
+    print(user, ">>> test option")
+def MeasurMethod(chatid, context):
+    context.bot.sendMessage(chat_id = chatid, 
+    text = """روش محاسبه به زودی در اینجا
+     قرار میگیرد
+     بنا بر این شما در حال دیدن یک متن تست هستید
+     """)
+def Version(chatid, context):
+    context.bot.sendMessage(chat_id = chatid, text = "@activity_monitoring_bot  version %s" % version)
 def Rep(update, context):
     query = update.callback_query
-    if query.data == "100":
-        print("100 selected")
-        Mystats()
+    chatid = 
+    if query.data == "Mystats":
+        mystats(update, context)
+    elif query.data == "test":
+        test(update, context)
+    elif query.data == "MeasurMethod":
+        MeasurMethod(chatid, context)
+    elif query.data == "Myrank":
+        test(update, context)
+    elif query.data == "Version":
+        Version(chatid, context)
 #-------------------------Handlers-------------------------#
 start_handler = CommandHandler('start', Start)
 stats_handler = CommandHandler('stats', Stats)
