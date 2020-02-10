@@ -331,7 +331,7 @@ def Version(chatid, context):
     context.bot.sendMessage(chat_id = chatid, text = "@activity_monitoring_bot  version %s" % version)
 def Rep(update, context):
     query = update.callback_query
-    chatid = update.message.chat_id
+    chatid = query.message.chat_id
     if query.data == "Mystats":
         mystats(update, context)
     elif query.data == "test":
