@@ -329,10 +329,7 @@ def test(update, context):
     print(user, ">>> test option")
 def MeasurMethod(chatid, context):
     context.bot.sendMessage(chat_id = chatid, 
-    text = """روش محاسبه به زودی در اینجا
-     قرار میگیرد
-     بنا بر این شما در حال دیدن یک متن تست هستید
-     """)
+    text = "به زودی روش محاسبه امتیاز قرار میگیرد")
 def Version(chatid, context):
     context.bot.sendMessage(chat_id = chatid, text = "@activity_monitoring_bot  version %s" % version)
 def Rep(update, context):
