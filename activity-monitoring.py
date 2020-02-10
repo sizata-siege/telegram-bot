@@ -1,11 +1,7 @@
 #IN THE NAME OF GOD
 #Activity monitoring bot v1
 #/echo
-<<<<<<< HEAD
-version = 3.0
-=======
-version = 2.0
->>>>>>> b9f002c5d24f7ba9d679dd2daae4fb9d1c1fc594
+version = 3.2
 #-------------------------Import tools-------------------------#
 from time import sleep
 #-------------------------Import Telegram-------------------------#
@@ -111,7 +107,8 @@ def addUser(user):
             print("Error add!")
             con.rollback()
     else:
-        context.bot.sendMessage(chat_id = update.effective_chat.id, text = "⚠️U don't have username.⚠️\npls set a username first" % name)
+        #context.bot.sendMessage(chat_id = update.effective_chat.id, text = "⚠️U don't have username.⚠️\npls set a username first" % name)
+        #Unavalable because of context
         print("Not added. Invalid username!")
 def userStats():
     cursor = con.cursor()
