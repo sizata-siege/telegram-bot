@@ -166,14 +166,13 @@ def Forwarded(update, context):
         context.bot.sendMessage(chat_id = update.effective_chat.id, text = "✅ User %s added to Controled users ✅" % username)
         scoreForwarded(username, text, isGroup)
 def Stats(update, context):
-    print("Yes!")
     chatid = update.effective_chat.id
     user = update.message.from_user.username
     text = update.message.text
     if int(update.effective_chat.id) < 0:
         isGroup = 1
         print (chatid, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ", update.message.from_user.username, " >>> stats in group")
-    elif update.effective_chat.id == 753039129 or update.effective_chat.id == 106652269:
+    elif update.effective_chat.id == 753039129 or update.effective_chat.id == 106652269:#user in admins
         isGroup = 0
         print (chatid, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ", update.message.from_user.username, " >>> stats in PV")
         cursor = con.cursor()
@@ -189,9 +188,24 @@ def Stats(update, context):
                 norm = result[4]
                 context.bot.sendMessage(chat_id = update.effective_chat.id, text = "%s➡️(%s) messages🔸(%s) Forwards🔸(%s) Replies🔸(%s) words total" % (user, nosm, nofm, norm, nosw))
         except:
-            print("Error printing!")
+            print("Error printing in stats!")
     else:
         print("Unable!")
+def MyRank(update, context):
+    query = update.callback_query
+    user = query.from_user.username
+    chatid = query.message.chat_id
+    cursor = con.cursor()
+    select = "select * from bot_users ORDER BY 'nosw' DESC"
+    cursor.execute(select)
+    results = cursor.fetchall()
+    i = 0
+    for result in results:
+        i += 1
+        if result[0] == user:
+            context.bot.sendMessage(chat_id = chatid, text = "شما رتبه %s هستید!" % i)
+    #except:
+     #   print("Error printing rank!")
 def Mystats(update, context):
     chatid = update.effective_chat.id
     user = update.message.from_user.username
@@ -344,7 +358,7 @@ def Rep(update, context):
     elif query.data == "MeasurMethod":
         MeasurMethod(chatid, context)
     elif query.data == "Myrank":
-        test(update, context)
+        MyRank(update, context)
     elif query.data == "Version":
         Version(chatid, context)
 #-------------------------Handlers-------------------------#
