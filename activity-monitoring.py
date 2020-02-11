@@ -1,6 +1,6 @@
 #IN THE NAME OF GOD
 #Activity monitoring bot v3.2
-#/del >>> deletes %d messages before % number
+#if user in admin >> admin list
 version = 3.2
 #-------------------------Import tools-------------------------#
 from time import sleep
@@ -8,6 +8,7 @@ from time import sleep
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup
 Token = "656547710:AAFciOC_C4Ch1KJDjRu0CTKc_UJT1aR3tms"
+#Token = "1017559271:AAG-Rj4fc14ondDY9ABeVfzdK2PkFEMvmhs"
 updater = Updater(token = Token, use_context = True)
 dp = updater.dispatcher
 import logging
@@ -98,22 +99,6 @@ def addUser(user):
         #context.bot.sendMessage(chat_id = update.effective_chat.id, text = "⚠️U don't have username.⚠️\npls set a username first" % name)
         #Unavalable because of context
         print("Not added. Invalid username!")
-def userStats():
-    cursor = con.cursor()
-    select = "select * from bot_users"
-    try:
-        cursor.execute(select)
-        results = cursor.fetchall()
-        for result in results:
-            user = result[0]
-            nosm = result[1]
-            nofm = result[2]
-            nosw = result[3]
-            norm = result[4]
-            report[result] = "%s > %s messages & %s Forwards & %s words total" % (user, nosm, nofm, nosw)
-            print(report[result])
-    except:
-        print("Error printing!")
 def Start(update, context):
     chatid = update.effective_chat.id
     user = update.message.from_user.username
@@ -122,7 +107,7 @@ def Start(update, context):
         if update.effective_chat.id == 753039129 or update.effective_chat.id == 106652269:
             context.bot.sendMessage(chat_id = update.effective_chat.id, text = "✅ Bot started ✅")
             context.bot.sendMessage(chat_id = update.effective_chat.id, text = "⚠️All messages will effect users activity⚠️")
-            print (chatid, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ", update.message.from_user.username, " >>> start in group")
+            print (chatid, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ", user, " >>> start in group")
         else:
             context.bot.sendMessage(chat_id = update.effective_chat.id, text = "🚫You can't start the bot in group🚫")
     else:
@@ -186,7 +171,7 @@ def Stats(update, context):
                 nofm = result[2]
                 nosw = result[3]
                 norm = result[4]
-                context.bot.sendMessage(chat_id = update.effective_chat.id, text = "%s➡️(%s) messages🔸(%s) Forwards🔸(%s) Replies🔸(%s) words total" % (user, nosm, nofm, norm, nosw))
+                context.bot.sendMessage(chat_id = update.effective_chat.id, text = "%s ➡️ (%s) M 🔸 (%s) F 🔸 (%s) R 🔸 (%s) W" % (user, nosm, nofm, norm, nosw))
         except:
             print("Error printing in stats!")
     else:
@@ -195,17 +180,19 @@ def MyRank(update, context):
     query = update.callback_query
     user = query.from_user.username
     chatid = query.message.chat_id
+    print("%s >>> Myrank" % user)
     cursor = con.cursor()
     select = "select * from bot_users ORDER BY 'nosw' DESC"
-    cursor.execute(select)
-    results = cursor.fetchall()
-    i = 0
-    for result in results:
-        i += 1
-        if result[0] == user:
-            context.bot.sendMessage(chat_id = chatid, text = "شما رتبه %s هستید!" % i)
-    #except:
-     #   print("Error printing rank!")
+    try:
+        cursor.execute(select)
+        results = cursor.fetchall()
+        i = 0
+        for result in results:
+            i += 1
+            if result[0] == user:
+                context.bot.sendMessage(chat_id = chatid, text = "شما رتبه %s هستید!" % i)
+    except:
+        print("Error printing rank!")
 def Mystats(update, context):
     chatid = update.effective_chat.id
     user = update.message.from_user.username
@@ -279,14 +266,14 @@ def Create(update, context):
     con.commit()
     print("Created Table!!!")
     context.bot.sendMessage(chat_id = update.effective_chat.id, text = "Created table!!!")
-def CreateAdmins(updare, context):
+def CreateAdmins(update, context):
     create = """create table bot_admins(
         username TEXT(100),
         chatid TEXT(20))"""
     cursor = con.cursor()
     cursor.execute(create)
     con.commit()
-    print("Created Table!!!")
+    print("Created Admins Table!!!")
     context.bot.sendMessage(chat_id = update.effective_chat.id, text = "Created table!!!")
 def NewAdmin(update, context):
     user = update.message.text[12: ]
@@ -348,6 +335,19 @@ def Echo(update, context):
     context.bot.deleteMessage(chat_id = update.effective_chat.id, message_id = update.message.message_id)
     context.bot.sendMessage(chat_id = update.effective_chat.id, text = text)
     print("Echo by %s >>> %s" % (update.message.from_user.username, text))
+def Del(update, context):
+    user = update.message.from_user.username
+    n = int(update.message.text[5: ])
+    i = 0
+    print("Deleted %s messages by %s" % (n, user))
+    while i <= n:
+        try:
+            context.bot.deleteMessage(chat_id = update.effective_chat.id, message_id = update.message.message_id - i)
+            i += 1
+        except:
+            print("Missing message")
+            i += 1
+            n += 1
 def Rep(update, context):
     query = update.callback_query
     chatid = query.message.chat_id
@@ -373,6 +373,7 @@ new_admin_handler = CommandHandler('new_admin', NewAdmin)
 status_handler = CommandHandler('status', Status)
 reset_all_handler = CommandHandler('reset_all', ResetAll)
 echo_handler = CommandHandler('echo', Echo)
+del_handler = CommandHandler('del', Del)
 #manager_handler = CommandHandler('XYZ', AddAdmin)
 text_handler = MessageHandler(Filters.text, Text)
 forwarded_handler = MessageHandler(Filters.forwarded, Forwarded)
@@ -392,6 +393,7 @@ dp.add_handler(text_handler)
 dp.add_handler(option_handler)
 dp.add_handler(rep_handler)
 dp.add_handler(echo_handler)
+dp.add_handler(del_handler)
 #-------------------------||||||||||||-------------------------#
 updater.start_polling()
 updater.idle()
