@@ -1,6 +1,6 @@
 #IN THE NAME OF GOD
-#Activity monitoring bot v1
-#/echo
+#Activity monitoring bot v3.2
+#/del >>> deletes %d messages before % number
 version = 3.2
 #-------------------------Import tools-------------------------#
 from time import sleep
@@ -15,18 +15,6 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 #-------------------------Connect to DataBase-------------------------#
 import sqlite3
 con = sqlite3.connect("bot.db", check_same_thread=False)
-
-# import mysql.connector
-# con = mysql.connector.connect(
-#     user = "xoEe4hNkKr",
-#     password = "dxFTpB2adi",
-#     host = "remotemysql.com",
-#     database = "xoEe4hNkKr"
-#     # user = "sizata99",
-#     # password = "sizata709152331402",
-#     # host = "sizata99.mysql.pythonanywhere-services.com",
-#     # database = "sizata99$bot"
-# )
 #-------------------------Functions-------------------------#
 def checkUsername(user):
     cursor = con.cursor()
@@ -189,7 +177,7 @@ def Stats(update, context):
         isGroup = 0
         print (chatid, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ", update.message.from_user.username, " >>> stats in PV")
         cursor = con.cursor()
-        select = "select * from bot_users"
+        select = "select * from bot_users ORDER BY `nosw` DESC"
         try:
             cursor.execute(select)
             results = cursor.fetchall()
@@ -277,6 +265,18 @@ def Create(update, context):
     con.commit()
     print("Created Table!!!")
     context.bot.sendMessage(chat_id = update.effective_chat.id, text = "Created table!!!")
+def CreateAdmins(updare, context):
+    create = """create table bot_admins(
+        username TEXT(100),
+        chatid TEXT(20))"""
+    cursor = con.cursor()
+    cursor.execute(create)
+    con.commit()
+    print("Created Table!!!")
+    context.bot.sendMessage(chat_id = update.effective_chat.id, text = "Created table!!!")
+def NewAdmin(update, context):
+    user = update.message.text[12: ]
+    print(user)
 def Status(update, context):
     context.bot.sendMessage(chat_id = update.effective_chat.id, text = "✅ Bot is Online! ✅")
     print (update.effective_chat.id, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ", update.message.from_user.username, " >>> Status")
@@ -354,6 +354,8 @@ mystats_handler = CommandHandler('mystats', Mystats)
 option_handler = CommandHandler('op', Op)
 rep_handler = CallbackQueryHandler(Rep)
 create_handler = CommandHandler('create', Create)
+create_admins_handler = CommandHandler('create_admins', CreateAdmins)
+new_admin_handler = CommandHandler('new_admin', NewAdmin)
 status_handler = CommandHandler('status', Status)
 reset_all_handler = CommandHandler('reset_all', ResetAll)
 echo_handler = CommandHandler('echo', Echo)
@@ -366,6 +368,8 @@ dp.add_handler(start_handler)
 dp.add_handler(stats_handler)
 dp.add_handler(mystats_handler)
 dp.add_handler(create_handler)
+dp.add_handler(create_admins_handler)
+dp.add_handler(new_admin_handler)
 dp.add_handler(status_handler)
 dp.add_handler(reset_all_handler)
 dp.add_handler(reply_handler)
@@ -381,3 +385,16 @@ updater.idle()
 #CLI robots
 #API robots
 #what is CLI?
+
+# import mysql.connector
+# con = mysql.connector.connect(
+#     user = "xoEe4hNkKr",
+#     password = "dxFTpB2adi",
+#     host = "remotemysql.com",
+#     database = "xoEe4hNkKr"
+#     # user = "sizata99",
+#     # password = "sizata709152331402",
+#     # host = "sizata99.mysql.pythonanywhere-services.com",
+#     # database = "sizata99$bot"
+# )
+#/echo ربات به مدت 10 دقیقه غیرفعال میشود
