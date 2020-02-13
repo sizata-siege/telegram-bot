@@ -294,7 +294,7 @@ def CreateAdmins(update, context):
     print("Created Admins Table!!!")
     context.bot.sendMessage(chat_id = update.effective_chat.id, text = "Created table!!!")
 def NewAdmin(update, context):
-    user = update.message.text[12: ]
+    user = update.message.text[11: ]
     print(user)
 def Status(update, context):
     context.bot.sendMessage(chat_id = update.effective_chat.id, text = "✅ Bot is Online! ✅")
