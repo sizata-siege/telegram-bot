@@ -1,7 +1,9 @@
 #IN THE NAME OF GOD
 #Activity monitoring bot v3.2
 #if user in admin >> admin list
-version = 3.2
+#ALTER TABLE `test` ADD `123` INT NOT NULL AFTER `str`; 
+#custom select users stats full . avg length of messages
+version = 4.1
 #-------------------------Import tools-------------------------#
 from time import sleep
 #-------------------------Import Telegram-------------------------#
@@ -37,10 +39,14 @@ def scoreText(user, text, isGroup):
             nosm = result[1] + 1
             words = text.count(" ") + 1
             nosw = result[3] + words
+            score = result[5] + 30
+            score += words
             update_m = "update bot_users set nosm = %s where username = '%s'" % (nosm, user)
             update_w = "update bot_users set nosw = %s where username = '%s'" % (nosw, user)
+            update_s = "update bot_users set score = %s where username = '%s'" % (score, user)
             cursor.execute(update_m)
             cursor.execute(update_w)
+            cursor.execute(update_s)
             con.commit()
             print("Text > %s > %s words" % (user, words))
         except:
@@ -56,6 +62,10 @@ def scoreForwarded(user, text, isGroup):
             nofm = result[2] + 1
             words = text.count(" ") + 1
             nosw = result[3] + words
+            score = result[5] + 35
+            score += words
+            update_s = "update bot_users set score = %s where username = '%s'" % (score, user)
+            cursor.execute(update_s)
             update_f = "update bot_users set nofm = %s where username = '%s'" % (nofm, user)
             update_w = "update bot_users set nosw = %s where username = '%s'" % (nosw, user)
             cursor.execute(update_f)
@@ -79,6 +89,10 @@ def scoreReply(user, text, isGroup):
             update_w = "update bot_users set nosw = %s where username = '%s'" % (nosw, user)
             cursor.execute(update_r)
             cursor.execute(update_w)
+            score = result[5] + 40
+            score += words
+            update_s = "update bot_users set score = %s where username = '%s'" % (score, user)
+            cursor.execute(update_s)
             con.commit()
             print("Replied > %s > %s words" % (user, words))
         except:
@@ -87,7 +101,7 @@ def scoreReply(user, text, isGroup):
 def addUser(user):
     if user:
         cursor = con.cursor()
-        add = "insert into bot_users VALUES ('%s', 0, 0, 0, 0)" % user
+        add = "insert into bot_users VALUES ('%s', 0, 0, 0, 0, 0)" % user
         try:
             cursor.execute(add)
             con.commit()
@@ -161,7 +175,7 @@ def Stats(update, context):
         isGroup = 0
         print (chatid, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ", update.message.from_user.username, " >>> stats in PV")
         cursor = con.cursor()
-        select = "select * from bot_users ORDER BY `nosw` DESC"
+        select = "select * from bot_users ORDER BY `score` DESC"
         try:
             cursor.execute(select)
             results = cursor.fetchall()
@@ -171,7 +185,8 @@ def Stats(update, context):
                 nofm = result[2]
                 nosw = result[3]
                 norm = result[4]
-                context.bot.sendMessage(chat_id = update.effective_chat.id, text = "%s ➡️ (%s) M 🔸 (%s) F 🔸 (%s) R 🔸 (%s) W" % (user, nosm, nofm, norm, nosw))
+                score = result[5]
+                context.bot.sendMessage(chat_id = update.effective_chat.id, text = "%s ➡️ (%s) Score 🔸 (%s) M 🔸 (%s) F 🔸 (%s) R 🔸 (%s) W" % (user, score, nosm, nofm, norm, nosw))
         except:
             print("Error printing in stats!")
     else:
@@ -182,7 +197,7 @@ def MyRank(update, context):
     chatid = query.message.chat_id
     print("%s >>> Myrank" % user)
     cursor = con.cursor()
-    select = "select * from bot_users ORDER BY 'nosw' DESC"
+    select = "select * from bot_users ORDER BY 'score' DESC"
     try:
         cursor.execute(select)
         results = cursor.fetchall()
@@ -213,7 +228,8 @@ def Mystats(update, context):
             nosm = result[1]
             nofm = result[2]
             norm = result[4]
-            context.bot.sendMessage(chat_id = update.effective_chat.id, text = "%s➡️(%s) messages🔸(%s) Forwards🔸(%s) Replies" % (user, nosm, nofm, norm))
+            score = result[5]
+            context.bot.sendMessage(chat_id = update.effective_chat.id, text = "%s➡️(%s) Score🔸(%s) Messages🔸(%s) Forwards🔸(%s) Replies" % (user, score, nosm, nofm, norm))
         except:
             print("Error printing!")
             context.bot.sendMessage(chat_id = update.effective_chat.id, text = "❌Failed to send your data❌")
@@ -237,7 +253,8 @@ def mystats(update, context):
             nosm = result[1]
             nofm = result[2]
             norm = result[4]
-            context.bot.sendMessage(chat_id = chatid, text = "%s➡️(%s) messages🔸(%s) Forwards🔸(%s) Replies" % (user, nosm, nofm, norm))
+            score = result[5]
+            context.bot.sendMessage(chat_id = chatid, text = "%s➡️(%s) Score(%s)🔸Messages🔸(%s) Forwards🔸(%s) Replies" % (user, score, nosm, nofm, norm))
         except:
             print("Error printing!")
             context.bot.sendMessage(chat_id = chatid, text = "❌Failed to send your data❌")
@@ -260,7 +277,8 @@ def Create(update, context):
         nosm INTEGER,
         nofm INTEGER,
         nosw INTEGER,
-        norm INTEGER)"""
+        norm INTEGER,
+        score INTEGER)"""
     cursor = con.cursor()
     cursor.execute(create)
     con.commit()
@@ -282,6 +300,7 @@ def Status(update, context):
     context.bot.sendMessage(chat_id = update.effective_chat.id, text = "✅ Bot is Online! ✅")
     print (update.effective_chat.id, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ", update.message.from_user.username, " >>> Status")
 def ResetAll(update, context):
+    context.bot.deleteMessage(chat_id = update.effective_chat.id, message_id = update.message.message_id)
     cursor = con.cursor()
     select = "select * from bot_users"
     try:
@@ -292,19 +311,57 @@ def ResetAll(update, context):
             nofm = 0
             nosw = 0
             norm = 0
-            update_s = "update bot_users set nosm = %s" % nosm
+            score = 0
+            update_m = "update bot_users set nosm = %s" % nosm
             update_f = "update bot_users set nofm = %s" % nofm
             update_w = "update bot_users set nosw = %s" % nosw
             update_r = "update bot_users set norm = %s" % norm
-            cursor.execute(update_s)
+            update_s = "update bot_users set score = %s" % score
+            cursor.execute(update_m)
             cursor.execute(update_f)
             cursor.execute(update_w)
             cursor.execute(update_r)
+            cursor.execute(update_s)
             con.commit()
         print("Reset All")
+        context.bot.sendMessage(chat_id = update.effective_chat.id, text = "⚠️All data was reset by admin!⚠️")
     except:
         print("Error updating!")
         con.rollback()
+def CheckScores(update, context):
+    user = update.message.from_user.username
+    chatid = update.message.chat_id
+    print("%s >>> Check scores" % user)
+    if user == "IR_SIZATA_SIEGE":
+        context.bot.sendMessage(chat_id = update.effective_chat.id, text = "⏳Checking scores!⏳")
+        context.bot.sendMessage(chat_id = update.effective_chat.id, text = "🌐Updating database!🌐")
+        context.bot.sendMessage(chat_id = update.effective_chat.id, text = "✅Scores Updated!✅")
+        cursor = con.cursor()
+        select = "select * from bot_users"
+        try:
+            cursor.execute(select)
+            results = cursor.fetchall()
+            for result in results:
+                username = result[0]
+                nosm = result[1]
+                nofm = result[2]
+                nosw = result[3]
+                norm = result[4]
+                score = result[5]
+                rescore = nosm * 30 + nofm * 35 + nosw + norm * 40
+                if score == rescore:
+                    print("Scores checked successfully! No diffrence found!")
+                else:
+                    print("%s >>> Score doesn't match! Updating Score!" % user)
+                    update_s = "update bot_users set score = %s where username = '%s'" % (rescore, username)
+                    cursor.execute(update_s)
+                    con.commit()
+        except:
+            print("failed to check scores")
+            con.rollback()
+    else:
+        print("%s >>> check scores" % user)
+        context.bot.sendMessage(chat_id = update.effective_chat.id, text = "❌U R not admin!❌")
 def Op(update, context):
     key = [
         [InlineKeyboardButton("option1", callback_data = "100"),
@@ -327,7 +384,7 @@ def test(update, context):
     print(user, ">>> test option")
 def MeasurMethod(chatid, context):
     context.bot.sendMessage(chat_id = chatid, 
-    text = "به زودی روش محاسبه امتیاز قرار میگیرد")
+    text = "Messages X 30\nForwards X 35\nReplies X 40\nWords X 1\nبرای مثال پیامی که طولش 4 کلمه هست امتیاز 34 میگیره و پیامی که 9 کلمه هست 39 امتیاز داره . اکه ریپلای باشه به همین صورت!")
 def Version(chatid, context):
     context.bot.sendMessage(chat_id = chatid, text = "@activity_monitoring_bot  version %s" % version)
 def Echo(update, context):
@@ -372,6 +429,7 @@ create_admins_handler = CommandHandler('create_admins', CreateAdmins)
 new_admin_handler = CommandHandler('new_admin', NewAdmin)
 status_handler = CommandHandler('status', Status)
 reset_all_handler = CommandHandler('reset_all', ResetAll)
+check_scores_handler = CommandHandler('check_scores', CheckScores)
 echo_handler = CommandHandler('echo', Echo)
 del_handler = CommandHandler('del', Del)
 #manager_handler = CommandHandler('XYZ', AddAdmin)
@@ -394,6 +452,7 @@ dp.add_handler(option_handler)
 dp.add_handler(rep_handler)
 dp.add_handler(echo_handler)
 dp.add_handler(del_handler)
+dp.add_handler(check_scores_handler)
 #-------------------------||||||||||||-------------------------#
 updater.start_polling()
 updater.idle()
