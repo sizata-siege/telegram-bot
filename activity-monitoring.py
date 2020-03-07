@@ -3,7 +3,7 @@
 #if user in admin >> admin list
 #ALTER TABLE `test` ADD `123` INT NOT NULL AFTER `str`; 
 #custom select users stats full . avg length of messages
-version = 4.1
+version = 6.0
 #-------------------------Import tools-------------------------#
 from time import sleep
 #-------------------------Import Telegram-------------------------#
@@ -18,6 +18,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 #-------------------------Connect to DataBase-------------------------#
 import sqlite3
 con = sqlite3.connect("bot.db", check_same_thread=False)
+admins = ["IR_SIZATA_SIEGE", "alireza_rhm99"]
 #-------------------------Functions-------------------------#
 def checkUsername(user):
     cursor = con.cursor()
@@ -130,8 +131,9 @@ def Start(update, context):
             [InlineKeyboardButton("📊 روش محاسبه فعالیت 📊", callback_data = "MeasurMethod")],
             [InlineKeyboardButton("👑رتبه من👑", callback_data = "Myrank"),
             InlineKeyboardButton("🆕ورژن ربات🆕", callback_data = "Version")],
-            [InlineKeyboardButton("Test Option 1", callback_data = "test"),
-            InlineKeyboardButton("Test Option 2", callback_data = "test")]
+            # [InlineKeyboardButton("Test Option 1", callback_data = "test"),
+            # InlineKeyboardButton("Test Option 2", callback_data = "test")]
+            [InlineKeyboardButton("امتیاز دیگر کاربران", callback_data = "scores")]
         ]
         start_markup = InlineKeyboardMarkup(btns)
         context.bot.sendMessage(chat_id = update.effective_chat.id, 
@@ -139,6 +141,7 @@ def Start(update, context):
         reply_markup = start_markup)
         print (chatid, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ", update.message.from_user.username, " >>> start in PV")
 def Text(update, context):
+    # print("Text called")
     if int(update.effective_chat.id) < 0:
         isGroup = 1
     else:
@@ -197,7 +200,8 @@ def MyRank(update, context):
     chatid = query.message.chat_id
     print("%s >>> Myrank" % user)
     cursor = con.cursor()
-    select = "select * from bot_users ORDER BY 'score' DESC"
+    #select = "select * from bot_users ORDER BY 'score' DESC"#Wrong '    `  
+    select = "select * from bot_users ORDER BY `score` DESC"
     try:
         cursor.execute(select)
         results = cursor.fetchall()
@@ -254,7 +258,7 @@ def mystats(update, context):
             nofm = result[2]
             norm = result[4]
             score = result[5]
-            context.bot.sendMessage(chat_id = chatid, text = "%s➡️(%s) Score(%s)🔸Messages🔸(%s) Forwards🔸(%s) Replies" % (user, score, nosm, nofm, norm))
+            context.bot.sendMessage(chat_id = chatid, text = "%s➡️(%s) Score🔸(%s) Messages🔸(%s) Forwards🔸(%s) Replies" % (user, score, nosm, nofm, norm))
         except:
             print("Error printing!")
             context.bot.sendMessage(chat_id = chatid, text = "❌Failed to send your data❌")
@@ -294,40 +298,49 @@ def CreateAdmins(update, context):
     print("Created Admins Table!!!")
     context.bot.sendMessage(chat_id = update.effective_chat.id, text = "Created table!!!")
 def NewAdmin(update, context):
-    user = update.message.text[11: ]
-    print(user)
+    admin = update.message.text[11: ]
+    print(admin)
 def Status(update, context):
     context.bot.sendMessage(chat_id = update.effective_chat.id, text = "✅ Bot is Online! ✅")
     print (update.effective_chat.id, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ", update.message.from_user.username, " >>> Status")
 def ResetAll(update, context):
-    context.bot.deleteMessage(chat_id = update.effective_chat.id, message_id = update.message.message_id)
-    cursor = con.cursor()
-    select = "select * from bot_users"
-    try:
-        cursor.execute(select)
-        results = cursor.fetchall()
-        for result in results:
-            nosm = 0
-            nofm = 0
-            nosw = 0
-            norm = 0
-            score = 0
-            update_m = "update bot_users set nosm = %s" % nosm
-            update_f = "update bot_users set nofm = %s" % nofm
-            update_w = "update bot_users set nosw = %s" % nosw
-            update_r = "update bot_users set norm = %s" % norm
-            update_s = "update bot_users set score = %s" % score
-            cursor.execute(update_m)
-            cursor.execute(update_f)
-            cursor.execute(update_w)
-            cursor.execute(update_r)
-            cursor.execute(update_s)
-            con.commit()
-        print("Reset All")
-        context.bot.sendMessage(chat_id = update.effective_chat.id, text = "⚠️All data was reset by admin!⚠️")
-    except:
-        print("Error updating!")
-        con.rollback()
+    chatid = update.effective_chat.id
+    user = update.message.from_user.username
+    if user in admins:
+        #context.bot.deleteMessage(chat_id = update.effective_chat.id, message_id = update.message.message_id)
+        context.bot.sendMessage(chat_id = update.effective_chat.id, text = "⏳Checking scores!⏳")
+        context.bot.sendMessage(chat_id = update.effective_chat.id, text = "🌐Updating database!🌐")
+        context.bot.sendMessage(chat_id = update.effective_chat.id, text = "✅Reseted all scores!✅")
+        cursor = con.cursor()
+        select = "select * from bot_users"
+        try:
+            cursor.execute(select)
+            results = cursor.fetchall()
+            for result in results:
+                nosm = 0
+                nofm = 0
+                nosw = 0
+                norm = 0
+                score = 0
+                update_m = "update bot_users set nosm = %s" % nosm
+                update_f = "update bot_users set nofm = %s" % nofm
+                update_w = "update bot_users set nosw = %s" % nosw
+                update_r = "update bot_users set norm = %s" % norm
+                update_s = "update bot_users set score = %s" % score
+                cursor.execute(update_m)
+                cursor.execute(update_f)
+                cursor.execute(update_w)
+                cursor.execute(update_r)
+                cursor.execute(update_s)
+                con.commit()
+            print("Reset All")
+            context.bot.sendMessage(chat_id = update.effective_chat.id, text = "⚠️All data was reset by admin!⚠️")
+        except:
+            print("Error updating!")
+            con.rollback()
+    else:
+        print("%s tried to reset data!" % user)
+        context.bot.sendMessage(chat_id = update.effective_chat.id, text = "❌U R not admin!❌")
 def CheckScores(update, context):
     user = update.message.from_user.username
     chatid = update.message.chat_id
@@ -388,26 +401,77 @@ def MeasurMethod(chatid, context):
 def Version(chatid, context):
     context.bot.sendMessage(chat_id = chatid, text = "@activity_monitoring_bot  version %s" % version)
 def Echo(update, context):
+    user = update.message.from_user.username
+    chatid = update.effective_chat.id
     text = update.message.text[5: ]
-    context.bot.deleteMessage(chat_id = update.effective_chat.id, message_id = update.message.message_id)
-    context.bot.sendMessage(chat_id = update.effective_chat.id, text = text)
-    print("Echo by %s >>> %s" % (update.message.from_user.username, text))
+    if user in admins:
+        context.bot.deleteMessage(chat_id = update.effective_chat.id, message_id = update.message.message_id)
+        context.bot.sendMessage(chat_id = update.effective_chat.id, text = text)
+        print("Echo by %s >>> %s" % (update.message.from_user.username, text))
+    else:
+        context.bot.deleteMessage(chat_id = chatid, message_id = update.message.message_id)
+        print("Failed to echo %s by %s" % (text, user))
 def Del(update, context):
     user = update.message.from_user.username
+    chatid = update.effective_chat.id
     n = int(update.message.text[5: ])
     i = 0
-    print("Deleted %s messages by %s" % (n, user))
-    while i <= n:
+    if user in admins:
+        print("Deleted %s messages by %s" % (n, user))
+        while i <= n:
+            try:
+                context.bot.deleteMessage(chat_id = update.effective_chat.id, message_id = update.message.message_id - i)
+                i += 1
+            except:
+                print("Missing message")
+                i += 1
+                n += 1
+    else:
+        context.bot.deleteMessage(chat_id = chatid, message_id = update.message.message_id)
+        print("%s failed to delete %s messages(Access Denied)" % (user, n))
+def Scores(update, context):
+    chatid = update.effective_chat.id
+    user = update.message.from_user.username
+    if int(update.effective_chat.id) > 0:
+        print (chatid, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ", update.message.from_user.username, " >>> scores in PV")
+        cursor = con.cursor()
+        select = "select * from bot_users ORDER BY `score` DESC"
         try:
-            context.bot.deleteMessage(chat_id = update.effective_chat.id, message_id = update.message.message_id - i)
-            i += 1
+            cursor.execute(select)
+            results = cursor.fetchall()
+            for result in results:
+                user = result[0]
+                # nosm = result[1]
+                # nofm = result[2]
+                # nosw = result[3]
+                # norm = result[4]
+                score = result[5]
+                context.bot.sendMessage(chat_id = update.effective_chat.id, text = "%s ➡️ (%s) Score" % (user, score))
         except:
-            print("Missing message")
-            i += 1
-            n += 1
+            print("Error printing in stats!")
+def Scores_options(update, context, user):
+    chatid = update.effective_chat.id
+    if int(update.effective_chat.id) > 0:
+        print (chatid, " ", user, " >>> scores in PV")
+        cursor = con.cursor()
+        select = "select * from bot_users ORDER BY `score` DESC"
+        try:
+            cursor.execute(select)
+            results = cursor.fetchall()
+            for result in results:
+                user = result[0]
+                # nosm = result[1]
+                # nofm = result[2]
+                # nosw = result[3]
+                # norm = result[4]
+                score = result[5]
+                context.bot.sendMessage(chat_id = update.effective_chat.id, text = "%s ➡️ (%s) Score" % (user, score))
+        except:
+            print("Error printing in stats!")
 def Rep(update, context):
     query = update.callback_query
     chatid = query.message.chat_id
+    user = query.message.from_user.username
     if query.data == "Mystats":
         mystats(update, context)
     elif query.data == "test":
@@ -418,6 +482,17 @@ def Rep(update, context):
         MyRank(update, context)
     elif query.data == "Version":
         Version(chatid, context)
+    elif query.data == "scores":
+        Scores_options(update, context, user)
+def Admin(update, context):
+    chatid = update.effective_chat.id
+    user = update.message.from_user.username
+    if user in admins:
+        print("%s is admin" % user)
+        context.bot.sendMessage(chat_id = chatid, text = "U R admin!")
+    else:
+        print("%s is not admin" % user)
+        context.bot.sendMessage(chat_id = chatid, text = "U R not admin!")
 #-------------------------Handlers-------------------------#
 start_handler = CommandHandler('start', Start)
 stats_handler = CommandHandler('stats', Stats)
@@ -432,6 +507,8 @@ reset_all_handler = CommandHandler('reset_all', ResetAll)
 check_scores_handler = CommandHandler('check_scores', CheckScores)
 echo_handler = CommandHandler('echo', Echo)
 del_handler = CommandHandler('del', Del)
+admin_handler = CommandHandler('admin', Admin)
+scores_handler = CommandHandler('scores', Scores)
 #manager_handler = CommandHandler('XYZ', AddAdmin)
 text_handler = MessageHandler(Filters.text, Text)
 forwarded_handler = MessageHandler(Filters.forwarded, Forwarded)
@@ -453,6 +530,8 @@ dp.add_handler(rep_handler)
 dp.add_handler(echo_handler)
 dp.add_handler(del_handler)
 dp.add_handler(check_scores_handler)
+dp.add_handler(admin_handler)
+dp.add_handler(scores_handler)
 #-------------------------||||||||||||-------------------------#
 updater.start_polling()
 updater.idle()
