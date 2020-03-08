@@ -1,16 +1,30 @@
-#IN THE NAME OF GOD
-#Activity monitoring bot v3.2
-#if user in admin >> admin list
-#ALTER TABLE `test` ADD `123` INT NOT NULL AFTER `str`; 
-#custom select users stats full . avg length of messages
+# IN THE NAME OF GOD
+# Activity monitoring bot v6.0
+# add admin menu
+# add /post = /job 
+# save user chatid in database
+# Save group chatid in database
+# set limit for scotes by admin
+# releaze score board in group for admin
+# /mtn = /maintenance (maintenance)
+# add notebook option and create a file for each users notes
+# add contact admin and save the message and then send for admin or send the data in a database and admin see them in his panel inbox when he wants
+# add contact manager = admin 
+# add suggestion option
+# add report a problem option
+# add a check list that users write their plan for the future and then they check(mark) their activities and also admin and manager can see their activities
+# ALTER TABLE `test` ADD `123` INT NOT NULL AFTER `str`; 
+# custom select users stats full . avg length of messages
 version = 6.0
+POINTt = 0
+POINT = 1
 #-------------------------Import tools-------------------------#
 from time import sleep
 #-------------------------Import Telegram-------------------------#
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler
-from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup
-Token = "656547710:AAFciOC_C4Ch1KJDjRu0CTKc_UJT1aR3tms"
-#Token = "1017559271:AAG-Rj4fc14ondDY9ABeVfzdK2PkFEMvmhs"
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler, ConversationHandler
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
+#Token = "656547710:AAFciOC_C4Ch1KJDjRu0CTKc_UJT1aR3tms"
+Token = "1017559271:AAG-Rj4fc14ondDY9ABeVfzdK2PkFEMvmhs"
 updater = Updater(token = Token, use_context = True)
 dp = updater.dispatcher
 import logging
@@ -429,6 +443,33 @@ def Del(update, context):
     else:
         context.bot.deleteMessage(chat_id = chatid, message_id = update.message.message_id)
         print("%s failed to delete %s messages(Access Denied)" % (user, n))
+def DelUser(update, context):
+    target = update.message.text[10: ]
+    user = update.message.from_user.username
+    if user in admins:
+        cursor = con.cursor()
+        remove = "DELETE FROM `bot_users` WHERE `username`='%s'" % target
+        try:
+            cursor.execute(remove)
+            print("removed %s" % target)
+            update.message.reply_text("⚠️Successfully removed %s" % target)
+            con.commit()
+        except:
+            update.message.reply_text("❌Failed to remove %s" % target)
+            print("failed to remove %s" % target)
+            con.rollback()
+    else:
+        print("%s failed to remove %s" %(user, target))
+        update.message.reply_text("❌Access Denied❌" )
+def AddScore(update, context):
+    user = update.message.from_user.username
+    text = update.message.text[11: ]
+    print(text)
+    if user in admins:
+        target = text.split(',')[0]
+        score = text.split(',')[1]
+
+    #/add_score target,3000
 def Scores(update, context):
     chatid = update.effective_chat.id
     user = update.message.from_user.username
@@ -493,6 +534,23 @@ def Admin(update, context):
     else:
         print("%s is not admin" % user)
         context.bot.sendMessage(chat_id = chatid, text = "U R not admin!")
+#--------------------------------------------------------------------
+def SendActivity(update, context):
+    #reply_keyboard = [['a', 'b', 'c']]
+    update.message.reply_text('Hi !!!')#, reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
+    print("POINT1")
+    return POINTt
+def ttt(update, context):
+    update.message.reply_text('I see! Please send me a photo of yourself')#, reply_markup=ReplyKeyboardRemove())
+    print("POINT2")
+    return POINT
+def skip_ttt(update, context):
+    print("skipped")
+def sss(update, context):
+    update.message.reply_text('FUCK U !!!')
+    return ConversationHandler.END
+def cancel(update, context):
+    print("canceled!!!")
 #-------------------------Handlers-------------------------#
 start_handler = CommandHandler('start', Start)
 stats_handler = CommandHandler('stats', Stats)
@@ -507,12 +565,31 @@ reset_all_handler = CommandHandler('reset_all', ResetAll)
 check_scores_handler = CommandHandler('check_scores', CheckScores)
 echo_handler = CommandHandler('echo', Echo)
 del_handler = CommandHandler('del', Del)
+del_user_handler = CommandHandler('del_user', DelUser)
+add_score_handler = CommandHandler('add_score', AddScore)
 admin_handler = CommandHandler('admin', Admin)
 scores_handler = CommandHandler('scores', Scores)
 #manager_handler = CommandHandler('XYZ', AddAdmin)
 text_handler = MessageHandler(Filters.text, Text)
 forwarded_handler = MessageHandler(Filters.forwarded, Forwarded)
 reply_handler = MessageHandler(Filters.reply, Reply)
+#-------------------------Conversation Handlers-------------------------#
+conv_handler = ConversationHandler(
+    entry_points=[CommandHandler('send_activity', SendActivity)],
+    states={
+        POINTt : [MessageHandler(Filters.text, ttt), CommandHandler('skip', skip_ttt)],
+
+        POINT : [MessageHandler(Filters.text, sss), CommandHandler('skip', skip_ttt)]
+
+        #    ,LOCATION: [MessageHandler(Filters.location, location),
+        #               CommandHandler('skip', skip_location)],
+
+        #    BIO: [MessageHandler(Filters.text, bio)]
+    },
+
+    fallbacks = [CommandHandler('cancel', cancel)]
+
+)
 #-------------------------Add Handlers-------------------------#
 dp.add_handler(start_handler)
 dp.add_handler(stats_handler)
@@ -529,9 +606,12 @@ dp.add_handler(option_handler)
 dp.add_handler(rep_handler)
 dp.add_handler(echo_handler)
 dp.add_handler(del_handler)
+dp.add_handler(del_user_handler)
 dp.add_handler(check_scores_handler)
 dp.add_handler(admin_handler)
 dp.add_handler(scores_handler)
+dp.add_handler(add_score_handler)
+dp.add_handler(conv_handler)
 #-------------------------||||||||||||-------------------------#
 updater.start_polling()
 updater.idle()

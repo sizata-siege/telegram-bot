@@ -1,0 +1,5 @@
+a, b, c, d = range(4)
+print(a)
+print(b)
+print(c)
+print(d)
