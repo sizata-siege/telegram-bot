@@ -15,9 +15,10 @@
 # add a check list that users write their plan for the future and then they check(mark) their activities and also admin and manager can see their activities
 # ALTER TABLE `test` ADD `123` INT NOT NULL AFTER `str`; 
 # custom select users stats full . avg length of messages
-version = 6.0
+version = 7.0
 #-------------------------Import tools-------------------------#
 from time import sleep
+import datetime
 #-------------------------Import Telegram-------------------------#
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler, ConversationHandler
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
@@ -140,12 +141,13 @@ def Start(update, context):
     else:
         btns = [
             [InlineKeyboardButton("📉 میزان فعالیت من 📈", callback_data = "Mystats")],
+            [InlineKeyboardButton("امتیاز دیگر کاربران", callback_data = "scores")],
             [InlineKeyboardButton("📊 روش محاسبه فعالیت 📊", callback_data = "MeasurMethod")],
             [InlineKeyboardButton("👑رتبه من👑", callback_data = "Myrank"),
             InlineKeyboardButton("🆕ورژن ربات🆕", callback_data = "Version")],
+            [InlineKeyboardButton("فرستادن پروژه / کارکرد", callback_data = "Send")]
             # [InlineKeyboardButton("Test Option 1", callback_data = "test"),
             # InlineKeyboardButton("Test Option 2", callback_data = "test")]
-            [InlineKeyboardButton("امتیاز دیگر کاربران", callback_data = "scores")]
         ]
         start_markup = InlineKeyboardMarkup(btns)
         context.bot.sendMessage(chat_id = update.effective_chat.id, 
@@ -507,6 +509,11 @@ def Scores_options(update, context, user):
                 context.bot.sendMessage(chat_id = update.effective_chat.id, text = "%s ➡️ (%s) Score" % (user, score))
         except:
             print("Error printing in stats!")
+def Send(update, context):
+    reply_keyboard = [['/send_activity\nکارکرد', '/send_project\nپروژه']]
+    update.message.reply_text(
+        'لطفا یک دسته بندی انتخاب کنید.',
+        reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
 def Rep(update, context):
     query = update.callback_query
     chatid = query.message.chat_id
@@ -523,6 +530,8 @@ def Rep(update, context):
         Version(chatid, context)
     elif query.data == "scores":
         Scores_options(update, context, user)
+    elif query.data == "Send":
+        Send(query, context)
 def Admin(update, context):
     chatid = update.effective_chat.id
     user = update.message.from_user.username
@@ -532,30 +541,38 @@ def Admin(update, context):
     else:
         print("%s is not admin" % user)
         context.bot.sendMessage(chat_id = chatid, text = "U R not admin!")
+def Validate(file):
+    try:
+        myfile = open(file, 'r')
+    except:
+        myfile = open(file, 'w')
 #-------------------------Conversations-------------------------#
-CATEGORY, SUBJECT, DESCRIPTION= range(3)
+CATEGORY_A, SUBJECT_A, DESCRIPTION_A = range(3)
 def SendActivity(update, context):
-    reply_keyboard = [['Website', 'Android']]
+    user = update.message.from_user.username
+    print("%s  >>> SendActivity" % user)
+    reply_keyboard = [['Website', 'Android']] # 📱 🌐
     update.message.reply_text(
-        'Select category',
+        'شما میتوانید با استفاده از /cancel فرایند را در هر جایی پایان دهید. لطفا دسته بندی را انتخاب کنید!',
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
-    return CATEGORY
-def category(update, context):
-    user = update.message.from_user
-    update.message.reply_text('Ok now write the subject',
+    return CATEGORY_A
+def category_a(update, context):
+    text = update.message.text
+    user = update.message.from_user.username
+    update.message.reply_text('بسیار خب. حالا موضوع کارکردتو بفرست. مثلا :\nیادگیری زبان جدید',
                               reply_markup=ReplyKeyboardRemove())
-    return SUBJECT
-def subject(update, context):
-    user = update.message.from_user
-    update.message.reply_text('now send me the descriothion')
-    return DESCRIPTION
-def description(update, context):
-    user = update.message.from_user
+    return SUBJECT_A
+def subject_a(update, context):
+    user = update.message.from_user.username
+    update.message.reply_text('حالا توضیحات رو بفرست. مثلا: \nمن یادگیری زبان جاواسکریپت رو شروع کردم.')
+    return DESCRIPTION_A
+def description_a(update, context):
+    user = update.message.from_user.username
     user_location = update.message.location
-    update.message.reply_text('Thanks the conversation finished')
+    update.message.reply_text('کارکرد شما ذخیره شد. شما 200 امتیاز دریافت کردید')
     return ConversationHandler.END
 def cancel(update, context):
-    user = update.message.from_user
+    user = update.message.from_user.username
     update.message.reply_text('Bye! I hope we can talk again some day.',
                               reply_markup=ReplyKeyboardRemove())
     return ConversationHandler.END
@@ -568,32 +585,32 @@ def SendProject(update, context):
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
     return CATEGORY
 def category(update, context):
-    user = update.message.from_user
+    user = update.message.from_user.username
     update.message.reply_text('Ok now write the subject',
                               reply_markup=ReplyKeyboardRemove())
     return SUBJECT
 def subject(update, context):
-    user = update.message.from_user
+    user = update.message.from_user.username
     update.message.reply_text('now send me the descriothion')
     return DESCRIPTION
 def description(update, context):
-    user = update.message.from_user
+    user = update.message.from_user.username
     update.message.reply_text('Now photo')
     return PHOTO
 def photo(update, context):
-    user = update.message.from_user
+    user = update.message.from_user.username
     photo_file = update.message.photo[-1].get_file()
-    photo_file.download('/media/%s-%s.jpg' %(user, datetime.datetime.now()))
+    photo_file.download('media/%s-%s.jpg' %(user, datetime.datetime.now()))
     update.message.reply_text('Now video')
     return VIDEO
 def video(update, context):
-    user = update.message.from_user
+    user = update.message.from_user.username
     video_file = update.message.video[-1].get_file()
-    video_file.download('/media/%s-%s.mp4' %(user, datetime.datetime.now()))
+    video_file.download('media/%s-%s.mp4' %(user, datetime.datetime.now()))
     update.message.reply_text('Done!')
     return ConversationHandler.END
 def cancel(update, context):
-    user = update.message.from_user
+    user = update.message.from_user.username
     update.message.reply_text('Bye! I hope we can talk again some day.',
                               reply_markup=ReplyKeyboardRemove())
     return ConversationHandler.END
@@ -624,11 +641,11 @@ send_activity_handler = ConversationHandler(
     entry_points=[CommandHandler('send_activity', SendActivity)],
 
     states={
-        CATEGORY: [MessageHandler(Filters.text, category)],#[MessageHandler(Filters.regex('^(Website|Android)$'), category)],
+        CATEGORY_A: [MessageHandler(Filters.regex('^(Website|Android)$'), category_a)],
 
-        SUBJECT: [MessageHandler(Filters.text, subject)],
+        SUBJECT_A: [MessageHandler(Filters.text, subject_a)],
 
-        DESCRIPTION: [MessageHandler(Filters.text, description)]
+        DESCRIPTION_A: [MessageHandler(Filters.text, description_a)]
     },
 
     fallbacks=[CommandHandler('cancel', cancel)]
@@ -637,7 +654,7 @@ send_project_handler = ConversationHandler(
     entry_points=[CommandHandler('send_project', SendProject)],
 
     states={
-        CATEGORY: [MessageHandler(Filters.text, category)],#[MessageHandler(Filters.regex('^(Website|Android)$'), category)],
+        CATEGORY: [MessageHandler(Filters.regex('^(Website|Android)$'), category)],
 
         SUBJECT: [MessageHandler(Filters.text, subject)],
 
