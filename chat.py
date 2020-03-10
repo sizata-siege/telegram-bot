@@ -11,8 +11,6 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 GENDER, PHOTO, LOCATION, BIO = range(4)
-
-
 def start(update, context):
     reply_keyboard = [['Boy', 'Girl', 'Other']]
 
@@ -23,8 +21,6 @@ def start(update, context):
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
 
     return GENDER
-
-
 def gender(update, context):
     user = update.message.from_user
     logger.info("Gender of %s: %s", user.first_name, update.message.text)
@@ -33,8 +29,6 @@ def gender(update, context):
                               reply_markup=ReplyKeyboardRemove())
 
     return PHOTO
-
-
 def photo(update, context):
     user = update.message.from_user
     photo_file = update.message.photo[-1].get_file()
@@ -44,8 +38,6 @@ def photo(update, context):
                               'or send /skip if you don\'t want to.')
 
     return LOCATION
-
-
 def skip_photo(update, context):
     user = update.message.from_user
     logger.info("User %s did not send a photo.", user.first_name)
@@ -53,8 +45,6 @@ def skip_photo(update, context):
                               'or send /skip.')
 
     return LOCATION
-
-
 def location(update, context):
     user = update.message.from_user
     user_location = update.message.location
@@ -64,8 +54,6 @@ def location(update, context):
                               'At last, tell me something about yourself.')
 
     return BIO
-
-
 def skip_location(update, context):
     user = update.message.from_user
     logger.info("User %s did not send a location.", user.first_name)
@@ -73,16 +61,12 @@ def skip_location(update, context):
                               'At last, tell me something about yourself.')
 
     return BIO
-
-
 def bio(update, context):
     user = update.message.from_user
     logger.info("Bio of %s: %s", user.first_name, update.message.text)
     update.message.reply_text('Thank you! I hope we can talk again some day.')
 
     return ConversationHandler.END
-
-
 def cancel(update, context):
     user = update.message.from_user
     logger.info("User %s canceled the conversation.", user.first_name)
@@ -90,13 +74,9 @@ def cancel(update, context):
                               reply_markup=ReplyKeyboardRemove())
 
     return ConversationHandler.END
-
-
 def error(update, context):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, context.error)
-
-
 def main():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
@@ -137,7 +117,5 @@ def main():
     # SIGTERM or SIGABRT. This should be used most of the time, since
     # start_polling() is non-blocking and will stop the bot gracefully.
     updater.idle()
-
-
 if __name__ == '__main__':
     main()

@@ -16,8 +16,6 @@
 # ALTER TABLE `test` ADD `123` INT NOT NULL AFTER `str`; 
 # custom select users stats full . avg length of messages
 version = 6.0
-POINTt = 0
-POINT = 1
 #-------------------------Import tools-------------------------#
 from time import sleep
 #-------------------------Import Telegram-------------------------#
@@ -534,23 +532,71 @@ def Admin(update, context):
     else:
         print("%s is not admin" % user)
         context.bot.sendMessage(chat_id = chatid, text = "U R not admin!")
-#--------------------------------------------------------------------
+#-------------------------Conversations-------------------------#
+CATEGORY, SUBJECT, DESCRIPTION= range(3)
 def SendActivity(update, context):
-    #reply_keyboard = [['a', 'b', 'c']]
-    update.message.reply_text('Hi !!!')#, reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
-    print("POINT1")
-    return POINTt
-def ttt(update, context):
-    update.message.reply_text('I see! Please send me a photo of yourself')#, reply_markup=ReplyKeyboardRemove())
-    print("POINT2")
-    return POINT
-def skip_ttt(update, context):
-    print("skipped")
-def sss(update, context):
-    update.message.reply_text('FUCK U !!!')
+    reply_keyboard = [['Website', 'Android']]
+    update.message.reply_text(
+        'Select category',
+        reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
+    return CATEGORY
+def category(update, context):
+    user = update.message.from_user
+    update.message.reply_text('Ok now write the subject',
+                              reply_markup=ReplyKeyboardRemove())
+    return SUBJECT
+def subject(update, context):
+    user = update.message.from_user
+    update.message.reply_text('now send me the descriothion')
+    return DESCRIPTION
+def description(update, context):
+    user = update.message.from_user
+    user_location = update.message.location
+    update.message.reply_text('Thanks the conversation finished')
     return ConversationHandler.END
 def cancel(update, context):
-    print("canceled!!!")
+    user = update.message.from_user
+    update.message.reply_text('Bye! I hope we can talk again some day.',
+                              reply_markup=ReplyKeyboardRemove())
+    return ConversationHandler.END
+#                    ==========                      #
+CATEGORY, SUBJECT, DESCRIPTION, PHOTO, VIDEO= range(5)
+def SendProject(update, context):
+    reply_keyboard = [['Website', 'Android']]
+    update.message.reply_text(
+        'Select category',
+        reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
+    return CATEGORY
+def category(update, context):
+    user = update.message.from_user
+    update.message.reply_text('Ok now write the subject',
+                              reply_markup=ReplyKeyboardRemove())
+    return SUBJECT
+def subject(update, context):
+    user = update.message.from_user
+    update.message.reply_text('now send me the descriothion')
+    return DESCRIPTION
+def description(update, context):
+    user = update.message.from_user
+    update.message.reply_text('Now photo')
+    return PHOTO
+def photo(update, context):
+    user = update.message.from_user
+    photo_file = update.message.photo[-1].get_file()
+    photo_file.download('/media/%s-%s.jpg' %(user, datetime.datetime.now()))
+    update.message.reply_text('Now video')
+    return VIDEO
+def video(update, context):
+    user = update.message.from_user
+    video_file = update.message.video[-1].get_file()
+    video_file.download('/media/%s-%s.mp4' %(user, datetime.datetime.now()))
+    update.message.reply_text('Done!')
+    return ConversationHandler.END
+def cancel(update, context):
+    user = update.message.from_user
+    update.message.reply_text('Bye! I hope we can talk again some day.',
+                              reply_markup=ReplyKeyboardRemove())
+    return ConversationHandler.END
 #-------------------------Handlers-------------------------#
 start_handler = CommandHandler('start', Start)
 stats_handler = CommandHandler('stats', Stats)
@@ -574,23 +620,39 @@ text_handler = MessageHandler(Filters.text, Text)
 forwarded_handler = MessageHandler(Filters.forwarded, Forwarded)
 reply_handler = MessageHandler(Filters.reply, Reply)
 #-------------------------Conversation Handlers-------------------------#
-conv_handler = ConversationHandler(
+send_activity_handler = ConversationHandler(
     entry_points=[CommandHandler('send_activity', SendActivity)],
+
     states={
-        POINTt : [MessageHandler(Filters.text, ttt), CommandHandler('skip', skip_ttt)],
+        CATEGORY: [MessageHandler(Filters.text, category)],#[MessageHandler(Filters.regex('^(Website|Android)$'), category)],
 
-        POINT : [MessageHandler(Filters.text, sss), CommandHandler('skip', skip_ttt)]
+        SUBJECT: [MessageHandler(Filters.text, subject)],
 
-        #    ,LOCATION: [MessageHandler(Filters.location, location),
-        #               CommandHandler('skip', skip_location)],
-
-        #    BIO: [MessageHandler(Filters.text, bio)]
+        DESCRIPTION: [MessageHandler(Filters.text, description)]
     },
 
-    fallbacks = [CommandHandler('cancel', cancel)]
+    fallbacks=[CommandHandler('cancel', cancel)]
+)
+send_project_handler = ConversationHandler(
+    entry_points=[CommandHandler('send_project', SendProject)],
 
+    states={
+        CATEGORY: [MessageHandler(Filters.text, category)],#[MessageHandler(Filters.regex('^(Website|Android)$'), category)],
+
+        SUBJECT: [MessageHandler(Filters.text, subject)],
+
+        DESCRIPTION: [MessageHandler(Filters.text, description)],
+
+        PHOTO: [MessageHandler(Filters.photo, photo)],
+
+        VIDEO: [MessageHandler(Filters.video, video)]
+    },
+
+    fallbacks=[CommandHandler('cancel', cancel)]
 )
 #-------------------------Add Handlers-------------------------#
+dp.add_handler(send_activity_handler)
+dp.add_handler(send_project_handler)
 dp.add_handler(start_handler)
 dp.add_handler(stats_handler)
 dp.add_handler(mystats_handler)
@@ -611,7 +673,6 @@ dp.add_handler(check_scores_handler)
 dp.add_handler(admin_handler)
 dp.add_handler(scores_handler)
 dp.add_handler(add_score_handler)
-dp.add_handler(conv_handler)
 #-------------------------||||||||||||-------------------------#
 updater.start_polling()
 updater.idle()
