@@ -2,4 +2,8 @@ f = open('test.txt' , 'a')
 
 string = 'amir,kambiz\n'
 
-f.write(string)
+mylist = ['1', 'ali', 'kam']
+
+print(str(mylist))
+
+f.write(str(mylist))

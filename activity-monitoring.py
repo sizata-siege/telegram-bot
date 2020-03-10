@@ -18,7 +18,7 @@
 version = 7.0
 #-------------------------Import tools-------------------------#
 from time import sleep
-import datetime
+from datetime import datetime
 #-------------------------Import Telegram-------------------------#
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler, ConversationHandler
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
@@ -546,68 +546,118 @@ def Validate(file):
         myfile = open(file, 'r')
     except:
         myfile = open(file, 'w')
+        myfile.close()
 #-------------------------Conversations-------------------------#
+user_activity = " "
 CATEGORY_A, SUBJECT_A, DESCRIPTION_A = range(3)
 def SendActivity(update, context):
+    Validate('activity_file.txt')
     user = update.message.from_user.username
     print("%s  >>> SendActivity" % user)
     reply_keyboard = [['Website', 'Android']] # 📱 🌐
+    global user_activity
+    user_activity = ''
+    user_activity += "%s,%s," %(str(datetime.now()), user)
     update.message.reply_text(
         'شما میتوانید با استفاده از /cancel فرایند را در هر جایی پایان دهید. لطفا دسته بندی را انتخاب کنید!',
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
     return CATEGORY_A
 def category_a(update, context):
     text = update.message.text
-    user = update.message.from_user.username
+    global user_activity
+    user_activity += "%s," % text
     update.message.reply_text('بسیار خب. حالا موضوع کارکردتو بفرست. مثلا :\nیادگیری زبان جدید',
                               reply_markup=ReplyKeyboardRemove())
     return SUBJECT_A
 def subject_a(update, context):
-    user = update.message.from_user.username
+    text = update.message.text
+    global user_activity
+    user_activity += "%s," % text
     update.message.reply_text('حالا توضیحات رو بفرست. مثلا: \nمن یادگیری زبان جاواسکریپت رو شروع کردم.')
     return DESCRIPTION_A
 def description_a(update, context):
-    user = update.message.from_user.username
-    user_location = update.message.location
+    text = update.message.text
+    global user_activity
+    user_activity += "%s\n" % text
+    f = open('activity_file.txt', 'a')
+    f.write(user_activity)
+    f.close()
     update.message.reply_text('کارکرد شما ذخیره شد. شما 200 امتیاز دریافت کردید')
     return ConversationHandler.END
 def cancel(update, context):
     user = update.message.from_user.username
-    update.message.reply_text('Bye! I hope we can talk again some day.',
+    update.message.reply_text('فرایند لغو شد!',
                               reply_markup=ReplyKeyboardRemove())
     return ConversationHandler.END
 #                    ==========                      #
-CATEGORY, SUBJECT, DESCRIPTION, PHOTO, VIDEO= range(5)
+user_project = " "
+CATEGORY, SUBJECT, DESCRIPTION, PHOTO, VIDEO, FILE = range(6)
 def SendProject(update, context):
+    Validate('project_file.txt')
+    user = update.message.from_user.username
+    print("%s  >>> SendProject" % user)
     reply_keyboard = [['Website', 'Android']]
+    global user_project
+    user_project = ''
+    user_project += "%s,%s," %(str(datetime.now()), user)
     update.message.reply_text(
-        'Select category',
+        'شما میتوانید با استفاده از /cancel فرایند را در هر جایی پایان دهید. لطفا دسته بندی را انتخاب کنید!',
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
     return CATEGORY
 def category(update, context):
-    user = update.message.from_user.username
-    update.message.reply_text('Ok now write the subject',
+    text = update.message.text
+    global user_project
+    user_project += "%s," % text
+    update.message.reply_text('بسیار خب. حالا موضوع کارکردتو بفرست. مثلا :\nیادگیری زبان جدید',
                               reply_markup=ReplyKeyboardRemove())
     return SUBJECT
 def subject(update, context):
-    user = update.message.from_user.username
-    update.message.reply_text('now send me the descriothion')
+    text = update.message.text
+    global user_project
+    user_project += "%s," % text
+    update.message.reply_text('حالا توضیحات رو بفرست. مثلا: \nمن یادگیری زبان جاواسکریپت رو شروع کردم.')
     return DESCRIPTION
 def description(update, context):
-    user = update.message.from_user.username
-    update.message.reply_text('Now photo')
+    text = update.message.text
+    global user_project
+    user_project += "%s," % text
+    update.message.reply_text('اگه از پروژت عکس داری برام بفرست اگر نه از /skip استفاده کن.')
     return PHOTO
 def photo(update, context):
     user = update.message.from_user.username
     photo_file = update.message.photo[-1].get_file()
-    photo_file.download('media/%s-%s.jpg' %(user, datetime.datetime.now()))
-    update.message.reply_text('Now video')
+    photo_file.download('media/%s-%s.jpg' %(user, datetime.now()))
+    global user_project
+    user_project += "media/%s-%s.jpg" %(user, datetime.now())
+    update.message.reply_text('اگه از پروژت فیلم داری برام بفرست اگرنه از /skip استفاده کن.')
     return VIDEO
 def video(update, context):
     user = update.message.from_user.username
     video_file = update.message.video[-1].get_file()
-    video_file.download('media/%s-%s.mp4' %(user, datetime.datetime.now()))
-    update.message.reply_text('Done!')
+    video_file.download('media/%s-%s.mp4' %(user, datetime.now()))
+    global user_project
+    user_project += "media/%s-%s.mp4" %(user, datetime.now())
+    f = open('project_file.txt', 'a')
+    f.write(user_project)
+    f.close()
+    update.message.reply_text('پروژه شما ذخیره شد. شما 500 امتیاز دریافت کردید')
+    # update.message.reply_text('گرفتمش حالا فایل پروژه رو برام بفرست یا از /skip استفاده کن.')
+    # return FILE
+    return ConversationHandler.END
+def SkipPhoto(update, context):
+    print("No photo recived")
+    global user_project
+    user_project += "No photo,"
+    update.message.reply_text('اگه از پروژت فیلم داری برام بفرست اگرنه از /skip استفاده کن.')
+    return VIDEO
+def SkipVideo(update, context):
+    print("No video recived")
+    global user_project
+    user_project += "No video,"
+    f = open('project_file.txt', 'a')
+    f.write(user_project)
+    f.close()
+    update.message.reply_text('پروژه شما ذخیره شد. شما 500 امتیاز دریافت کردید')
     return ConversationHandler.END
 def cancel(update, context):
     user = update.message.from_user.username
@@ -660,9 +710,13 @@ send_project_handler = ConversationHandler(
 
         DESCRIPTION: [MessageHandler(Filters.text, description)],
 
-        PHOTO: [MessageHandler(Filters.photo, photo)],
+        PHOTO: [MessageHandler(Filters.photo, photo),
+        CommandHandler('skip', SkipPhoto)],
 
-        VIDEO: [MessageHandler(Filters.video, video)]
+        VIDEO: [MessageHandler(Filters.video, video),
+        CommandHandler('skip', SkipVideo)]
+
+        # FILE: [MessageHandler(Filters.document, file)]
     },
 
     fallbacks=[CommandHandler('cancel', cancel)]
