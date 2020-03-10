@@ -636,7 +636,7 @@ def video(update, context):
     video_file = update.message.video[-1].get_file()
     video_file.download('media/%s-%s.mp4' %(user, datetime.now()))
     global user_project
-    user_project += "media/%s-%s.mp4" %(user, datetime.now())
+    user_project += "media/%s-%s.mp4\n" %(user, datetime.now())
     f = open('project_file.txt', 'a')
     f.write(user_project)
     f.close()
@@ -653,7 +653,7 @@ def SkipPhoto(update, context):
 def SkipVideo(update, context):
     print("No video recived")
     global user_project
-    user_project += "No video,"
+    user_project += "No video\n"
     f = open('project_file.txt', 'a')
     f.write(user_project)
     f.close()
