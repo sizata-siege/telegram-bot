@@ -1,11 +1,11 @@
 # IN THE NAME OF GOD
-# Activity monitoring bot v6.0
+# Activity monitoring bot v7.0
 # add admin menu
 # add /post = /job 
 # save user chatid in database
 # Save group chatid in database
 # set limit for scotes by admin
-# releaze score board in group for admin
+# release score board in group for admin
 # /mtn = /maintenance (maintenance)
 # add notebook option and create a file for each users notes
 # add contact admin and save the message and then send for admin or send the data in a database and admin see them in his panel inbox when he wants
@@ -15,24 +15,31 @@
 # add a check list that users write their plan for the future and then they check(mark) their activities and also admin and manager can see their activities
 # ALTER TABLE `test` ADD `123` INT NOT NULL AFTER `str`; 
 # custom select users stats full . avg length of messages
+# add challenge adding to admin panel
+# context.bot.sendMessage(username = 'IR_SIZATA_SIEGE', text='Hi')
 version = 7.0
-#-------------------------Import tools-------------------------#
+# -------------------------Import tools-------------------------#
 from time import sleep
 from datetime import datetime
-#-------------------------Import Telegram-------------------------#
+# -------------------------Import Telegram-------------------------#
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler, ConversationHandler
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
-#Token = "656547710:AAFciOC_C4Ch1KJDjRu0CTKc_UJT1aR3tms"
+
+# Token = "656547710:AAFciOC_C4Ch1KJDjRu0CTKc_UJT1aR3tms"
 Token = "1017559271:AAG-Rj4fc14ondDY9ABeVfzdK2PkFEMvmhs"
-updater = Updater(token = Token, use_context = True)
+updater = Updater(token=Token, use_context=True)
 dp = updater.dispatcher
 import logging
+
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-#-------------------------Connect to DataBase-------------------------#
+# -------------------------Connect to DataBase-------------------------#
 import sqlite3
+
 con = sqlite3.connect("bot.db", check_same_thread=False)
 admins = ["IR_SIZATA_SIEGE", "alireza_rhm99"]
-#-------------------------Functions-------------------------#
+
+
+# -------------------------Functions-------------------------#
 def checkUsername(user):
     cursor = con.cursor()
     select = "select * from bot_users where username = '%s'" % user
@@ -43,6 +50,8 @@ def checkUsername(user):
     except:
         print("Error selection !")
         return 0
+
+
 def scoreText(user, text, isGroup):
     if isGroup:
         cursor = con.cursor()
@@ -66,6 +75,8 @@ def scoreText(user, text, isGroup):
         except:
             print("Error updating!")
             con.rollback()
+
+
 def scoreForwarded(user, text, isGroup):
     if isGroup:
         cursor = con.cursor()
@@ -89,6 +100,8 @@ def scoreForwarded(user, text, isGroup):
         except:
             print("Error updating!")
             con.rollback()
+
+
 def scoreReply(user, text, isGroup):
     if isGroup:
         cursor = con.cursor()
@@ -112,6 +125,8 @@ def scoreReply(user, text, isGroup):
         except:
             print("Error updating!")
             con.rollback()
+
+
 def addUser(user):
     if user:
         cursor = con.cursor()
@@ -124,36 +139,43 @@ def addUser(user):
             print("Error add!")
             con.rollback()
     else:
-        #context.bot.sendMessage(chat_id = update.effective_chat.id, text = "⚠️U don't have username.⚠️\npls set a username first" % name)
-        #Unavalable because of context
+        # context.bot.sendMessage(chat_id = update.effective_chat.id, text = "⚠️U don't have username.⚠️\npls set a username first" % name)
+        # Unavalable because of context
         print("Not added. Invalid username!")
+
+
 def Start(update, context):
     chatid = update.effective_chat.id
     user = update.message.from_user.username
     name = update.message.from_user.first_name
     if int(chatid) < 0:
         if update.effective_chat.id == 753039129 or update.effective_chat.id == 106652269:
-            context.bot.sendMessage(chat_id = update.effective_chat.id, text = "✅ Bot started ✅")
-            context.bot.sendMessage(chat_id = update.effective_chat.id, text = "⚠️All messages will effect users activity⚠️")
-            print (chatid, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ", user, " >>> start in group")
+            context.bot.sendMessage(chat_id=update.effective_chat.id, text="✅ Bot started ✅")
+            context.bot.sendMessage(chat_id=update.effective_chat.id,
+                                    text="⚠️All messages will effect users activity⚠️")
+            print(chatid, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ", user,
+                  " >>> start in group")
         else:
-            context.bot.sendMessage(chat_id = update.effective_chat.id, text = "🚫You can't start the bot in group🚫")
+            context.bot.sendMessage(chat_id=update.effective_chat.id, text="🚫You can't start the bot in group🚫")
     else:
         btns = [
-            [InlineKeyboardButton("📉 میزان فعالیت من 📈", callback_data = "Mystats")],
-            [InlineKeyboardButton("امتیاز دیگر کاربران", callback_data = "scores")],
-            [InlineKeyboardButton("📊 روش محاسبه فعالیت 📊", callback_data = "MeasurMethod")],
-            [InlineKeyboardButton("👑رتبه من👑", callback_data = "Myrank"),
-            InlineKeyboardButton("🆕ورژن ربات🆕", callback_data = "Version")],
-            [InlineKeyboardButton("فرستادن پروژه / کارکرد", callback_data = "Send")]
+            [InlineKeyboardButton("📉 میزان فعالیت من 📈", callback_data="Mystats")],
+            [InlineKeyboardButton("امتیاز دیگر کاربران", callback_data="scores")],
+            [InlineKeyboardButton("📊 روش محاسبه فعالیت 📊", callback_data="MeasurMethod")],
+            [InlineKeyboardButton("👑رتبه من👑", callback_data="Myrank"),
+             InlineKeyboardButton("🆕ورژن ربات🆕", callback_data="Version")],
+            [InlineKeyboardButton("فرستادن پروژه / کارکرد", callback_data="Send")]
             # [InlineKeyboardButton("Test Option 1", callback_data = "test"),
             # InlineKeyboardButton("Test Option 2", callback_data = "test")]
         ]
         start_markup = InlineKeyboardMarkup(btns)
-        context.bot.sendMessage(chat_id = update.effective_chat.id, 
-        text = "Hi %s! 👋\nHow can I help U?" % name, 
-        reply_markup = start_markup)
-        print (chatid, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ", update.message.from_user.username, " >>> start in PV")
+        context.bot.sendMessage(chat_id=update.effective_chat.id,
+                                text="Hi %s! 👋\nHow can I help U?" % name,
+                                reply_markup=start_markup)
+        print(chatid, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ",
+              update.message.from_user.username, " >>> start in PV")
+
+
 def Text(update, context):
     # print("Text called")
     if int(update.effective_chat.id) < 0:
@@ -166,8 +188,11 @@ def Text(update, context):
         scoreText(username, text, isGroup)
     else:
         addUser(username)
-        context.bot.sendMessage(chat_id = update.effective_chat.id, text = "✅ User %s added to Controled users ✅" % username)
+        context.bot.sendMessage(chat_id=update.effective_chat.id,
+                                text="✅ User %s added to Controled users ✅" % username)
         scoreText(username, text, isGroup)
+
+
 def Forwarded(update, context):
     if int(update.effective_chat.id) < 0:
         isGroup = 1
@@ -179,18 +204,23 @@ def Forwarded(update, context):
         scoreForwarded(username, text, isGroup)
     else:
         addUser(username)
-        context.bot.sendMessage(chat_id = update.effective_chat.id, text = "✅ User %s added to Controled users ✅" % username)
+        context.bot.sendMessage(chat_id=update.effective_chat.id,
+                                text="✅ User %s added to Controled users ✅" % username)
         scoreForwarded(username, text, isGroup)
+
+
 def Stats(update, context):
     chatid = update.effective_chat.id
     user = update.message.from_user.username
     text = update.message.text
     if int(update.effective_chat.id) < 0:
         isGroup = 1
-        print (chatid, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ", update.message.from_user.username, " >>> stats in group")
-    elif update.effective_chat.id == 753039129 or update.effective_chat.id == 106652269:#user in admins
+        print(chatid, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ",
+              update.message.from_user.username, " >>> stats in group")
+    elif update.effective_chat.id == 753039129 or update.effective_chat.id == 106652269:  # user in admins
         isGroup = 0
-        print (chatid, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ", update.message.from_user.username, " >>> stats in PV")
+        print(chatid, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ",
+              update.message.from_user.username, " >>> stats in PV")
         cursor = con.cursor()
         select = "select * from bot_users ORDER BY `score` DESC"
         try:
@@ -203,18 +233,22 @@ def Stats(update, context):
                 nosw = result[3]
                 norm = result[4]
                 score = result[5]
-                context.bot.sendMessage(chat_id = update.effective_chat.id, text = "%s ➡️ (%s) Score 🔸 (%s) M 🔸 (%s) F 🔸 (%s) R 🔸 (%s) W" % (user, score, nosm, nofm, norm, nosw))
+                context.bot.sendMessage(chat_id=update.effective_chat.id,
+                                        text="%s ➡️ (%s) Score 🔸 (%s) M 🔸 (%s) F 🔸 (%s) R 🔸 (%s) W" % (
+                                            user, score, nosm, nofm, norm, nosw))
         except:
             print("Error printing in stats!")
     else:
         print("Unable!")
+
+
 def MyRank(update, context):
     query = update.callback_query
     user = query.from_user.username
     chatid = query.message.chat_id
     print("%s >>> Myrank" % user)
     cursor = con.cursor()
-    #select = "select * from bot_users ORDER BY 'score' DESC"#Wrong '    `  
+    # select = "select * from bot_users ORDER BY 'score' DESC"#Wrong '    `
     select = "select * from bot_users ORDER BY `score` DESC"
     try:
         cursor.execute(select)
@@ -223,20 +257,24 @@ def MyRank(update, context):
         for result in results:
             i += 1
             if result[0] == user:
-                context.bot.sendMessage(chat_id = chatid, text = "شما رتبه %s هستید!" % i)
+                context.bot.sendMessage(chat_id=chatid, text="شما رتبه %s هستید!" % i)
     except:
         print("Error printing rank!")
+
+
 def Mystats(update, context):
     chatid = update.effective_chat.id
     user = update.message.from_user.username
     if int(update.effective_chat.id) < 0:
         isGroup = 1
-        print (chatid, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ", update.message.from_user.username, " >>> MyStats in group")
-        context.bot.sendMessage(chat_id = update.effective_chat.id, text = "🚫You can't use this command in the group🚫")
+        print(chatid, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ",
+              update.message.from_user.username, " >>> MyStats in group")
+        context.bot.sendMessage(chat_id=update.effective_chat.id, text="🚫You can't use this command in the group🚫")
     else:
         query = update.callback_query
         isGroup = 0
-        print (chatid, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ", update.message.from_user.username, " >>> MyStats in PV")
+        print(chatid, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ",
+              update.message.from_user.username, " >>> MyStats in PV")
         cursor = con.cursor()
         select = "select * from bot_users where username = '%s'" % user
         try:
@@ -247,21 +285,25 @@ def Mystats(update, context):
             nofm = result[2]
             norm = result[4]
             score = result[5]
-            context.bot.sendMessage(chat_id = update.effective_chat.id, text = "%s➡️(%s) Score🔸(%s) Messages🔸(%s) Forwards🔸(%s) Replies" % (user, score, nosm, nofm, norm))
+            context.bot.sendMessage(chat_id=update.effective_chat.id,
+                                    text="%s➡️(%s) Score🔸(%s) Messages🔸(%s) Forwards🔸(%s) Replies" % (
+                                        user, score, nosm, nofm, norm))
         except:
             print("Error printing!")
-            context.bot.sendMessage(chat_id = update.effective_chat.id, text = "❌Failed to send your data❌")
+            context.bot.sendMessage(chat_id=update.effective_chat.id, text="❌Failed to send your data❌")
+
+
 def mystats(update, context):
     query = update.callback_query
     user = query.from_user.username
     chatid = query.message.chat_id
-    #user = update.message.from_user.username
+    # user = update.message.from_user.username
     if int(chatid) < 0:
-        print (chatid, " ", user, " ", " >>> MyStats in group")
-        context.bot.sendMessage(chat_id = chatid, text = "🚫You can't use this command in the group🚫")
+        print(chatid, " ", user, " ", " >>> MyStats in group")
+        context.bot.sendMessage(chat_id=chatid, text="🚫You can't use this command in the group🚫")
     else:
         query = update.callback_query
-        print (chatid, " ", user, " ", " >>> MyStats in PV")
+        print(chatid, " ", user, " ", " >>> MyStats in PV")
         cursor = con.cursor()
         select = "select * from bot_users where username = '%s'" % user
         try:
@@ -272,10 +314,14 @@ def mystats(update, context):
             nofm = result[2]
             norm = result[4]
             score = result[5]
-            context.bot.sendMessage(chat_id = chatid, text = "%s➡️(%s) Score🔸(%s) Messages🔸(%s) Forwards🔸(%s) Replies" % (user, score, nosm, nofm, norm))
+            context.bot.sendMessage(chat_id=chatid,
+                                    text="%s➡️(%s) Score🔸(%s) Messages🔸(%s) Forwards🔸(%s) Replies" % (
+                                        user, score, nosm, nofm, norm))
         except:
             print("Error printing!")
-            context.bot.sendMessage(chat_id = chatid, text = "❌Failed to send your data❌")
+            context.bot.sendMessage(chat_id=chatid, text="❌Failed to send your data❌")
+
+
 def Reply(update, context):
     if int(update.effective_chat.id) < 0:
         isGroup = 1
@@ -287,8 +333,11 @@ def Reply(update, context):
         scoreReply(username, text, isGroup)
     else:
         addUser(username)
-        context.bot.sendMessage(chat_id = update.effective_chat.id, text = "✅ User %s added to Controled users ✅" % username)
+        context.bot.sendMessage(chat_id=update.effective_chat.id,
+                                text="✅ User %s added to Controled users ✅" % username)
         scoreReply(username, text, isGroup)
+
+
 def Create(update, context):
     create = """create table bot_users(
         username TEXT(100),
@@ -301,7 +350,9 @@ def Create(update, context):
     cursor.execute(create)
     con.commit()
     print("Created Table!!!")
-    context.bot.sendMessage(chat_id = update.effective_chat.id, text = "Created table!!!")
+    context.bot.sendMessage(chat_id=update.effective_chat.id, text="Created table!!!")
+
+
 def CreateAdmins(update, context):
     create = """create table bot_admins(
         username TEXT(100),
@@ -310,21 +361,28 @@ def CreateAdmins(update, context):
     cursor.execute(create)
     con.commit()
     print("Created Admins Table!!!")
-    context.bot.sendMessage(chat_id = update.effective_chat.id, text = "Created table!!!")
+    context.bot.sendMessage(chat_id=update.effective_chat.id, text="Created table!!!")
+
+
 def NewAdmin(update, context):
-    admin = update.message.text[11: ]
+    admin = update.message.text[11:]
     print(admin)
+
+
 def Status(update, context):
-    context.bot.sendMessage(chat_id = update.effective_chat.id, text = "✅ Bot is Online! ✅")
-    print (update.effective_chat.id, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ", update.message.from_user.username, " >>> Status")
+    context.bot.sendMessage(chat_id=update.effective_chat.id, text="✅ Bot is Online! ✅")
+    print(update.effective_chat.id, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name,
+          " ", update.message.from_user.username, " >>> Status")
+
+
 def ResetAll(update, context):
     chatid = update.effective_chat.id
     user = update.message.from_user.username
     if user in admins:
-        #context.bot.deleteMessage(chat_id = update.effective_chat.id, message_id = update.message.message_id)
-        context.bot.sendMessage(chat_id = update.effective_chat.id, text = "⏳Checking scores!⏳")
-        context.bot.sendMessage(chat_id = update.effective_chat.id, text = "🌐Updating database!🌐")
-        context.bot.sendMessage(chat_id = update.effective_chat.id, text = "✅Reseted all scores!✅")
+        # context.bot.deleteMessage(chat_id = update.effective_chat.id, message_id = update.message.message_id)
+        context.bot.sendMessage(chat_id=update.effective_chat.id, text="⏳Checking scores!⏳")
+        context.bot.sendMessage(chat_id=update.effective_chat.id, text="🌐Updating database!🌐")
+        context.bot.sendMessage(chat_id=update.effective_chat.id, text="✅Reseted all scores!✅")
         cursor = con.cursor()
         select = "select * from bot_users"
         try:
@@ -348,21 +406,23 @@ def ResetAll(update, context):
                 cursor.execute(update_s)
                 con.commit()
             print("Reset All")
-            context.bot.sendMessage(chat_id = update.effective_chat.id, text = "⚠️All data was reset by admin!⚠️")
+            context.bot.sendMessage(chat_id=update.effective_chat.id, text="⚠️All data was reset by admin!⚠️")
         except:
             print("Error updating!")
             con.rollback()
     else:
         print("%s tried to reset data!" % user)
-        context.bot.sendMessage(chat_id = update.effective_chat.id, text = "❌U R not admin!❌")
+        context.bot.sendMessage(chat_id=update.effective_chat.id, text="❌U R not admin!❌")
+
+
 def CheckScores(update, context):
     user = update.message.from_user.username
     chatid = update.message.chat_id
     print("%s >>> Check scores" % user)
     if user == "IR_SIZATA_SIEGE":
-        context.bot.sendMessage(chat_id = update.effective_chat.id, text = "⏳Checking scores!⏳")
-        context.bot.sendMessage(chat_id = update.effective_chat.id, text = "🌐Updating database!🌐")
-        context.bot.sendMessage(chat_id = update.effective_chat.id, text = "✅Scores Updated!✅")
+        context.bot.sendMessage(chat_id=update.effective_chat.id, text="⏳Checking scores!⏳")
+        context.bot.sendMessage(chat_id=update.effective_chat.id, text="🌐Updating database!🌐")
+        context.bot.sendMessage(chat_id=update.effective_chat.id, text="✅Scores Updated!✅")
         cursor = con.cursor()
         select = "select * from bot_users"
         try:
@@ -388,63 +448,77 @@ def CheckScores(update, context):
             con.rollback()
     else:
         print("%s >>> check scores" % user)
-        context.bot.sendMessage(chat_id = update.effective_chat.id, text = "❌U R not admin!❌")
+        context.bot.sendMessage(chat_id=update.effective_chat.id, text="❌U R not admin!❌")
+
+
 def Op(update, context):
     key = [
-        [InlineKeyboardButton("option1", callback_data = "100"),
-        InlineKeyboardButton("option1", callback_data = "200")],
-        [InlineKeyboardButton("option1", callback_data = "300"),
-        InlineKeyboardButton("option1", callback_data = "400")],
-        [InlineKeyboardButton("option1", callback_data = "500")],
-        [InlineKeyboardButton("option1", callback_data = "600")],
-        [InlineKeyboardButton("option1", callback_data = "700")]
+        [InlineKeyboardButton("option1", callback_data="100"),
+         InlineKeyboardButton("option1", callback_data="200")],
+        [InlineKeyboardButton("option1", callback_data="300"),
+         InlineKeyboardButton("option1", callback_data="400")],
+        [InlineKeyboardButton("option1", callback_data="500")],
+        [InlineKeyboardButton("option1", callback_data="600")],
+        [InlineKeyboardButton("option1", callback_data="700")]
     ]
     printkey = InlineKeyboardMarkup(key)
-    context.bot.sendMessage(chat_id = update.effective_chat.id, 
-        text = "Hi! 👋\nHow can I help U?\n/mystats >>> فعالیت من در تبادل اطلاعات", 
-        reply_markup = printkey)
+    context.bot.sendMessage(chat_id=update.effective_chat.id,
+                            text="Hi! 👋\nHow can I help U?\n/mystats >>> فعالیت من در تبادل اطلاعات",
+                            reply_markup=printkey)
+
+
 def test(update, context):
     query = update.callback_query
     user = query.from_user.username
     chatid = query.message.chat_id
-    context.bot.sendMessage(chat_id = chatid, text = "😊 This is a test option, so it doesn't work! 😁")
+    context.bot.sendMessage(chat_id=chatid, text="😊 This is a test option, so it doesn't work! 😁")
     print(user, ">>> test option")
+
+
 def MeasurMethod(chatid, context):
-    context.bot.sendMessage(chat_id = chatid, 
-    text = "Messages X 30\nForwards X 35\nReplies X 40\nWords X 1\nبرای مثال پیامی که طولش 4 کلمه هست امتیاز 34 میگیره و پیامی که 9 کلمه هست 39 امتیاز داره . اکه ریپلای باشه به همین صورت!")
+    context.bot.sendMessage(chat_id=chatid,
+                            text="Messages X 30\nForwards X 35\nReplies X 40\nWords X 1\nبرای مثال پیامی که طولش 4 کلمه هست امتیاز 34 میگیره و پیامی که 9 کلمه هست 39 امتیاز داره . اکه ریپلای باشه به همین صورت!")
+
+
 def Version(chatid, context):
-    context.bot.sendMessage(chat_id = chatid, text = "@activity_monitoring_bot  version %s" % version)
+    context.bot.sendMessage(chat_id=chatid, text="@activity_monitoring_bot  version %s" % version)
+
+
 def Echo(update, context):
     user = update.message.from_user.username
     chatid = update.effective_chat.id
-    text = update.message.text[5: ]
+    text = update.message.text[5:]
     if user in admins:
-        context.bot.deleteMessage(chat_id = update.effective_chat.id, message_id = update.message.message_id)
-        context.bot.sendMessage(chat_id = update.effective_chat.id, text = text)
+        context.bot.deleteMessage(chat_id=update.effective_chat.id, message_id=update.message.message_id)
+        context.bot.sendMessage(chat_id=update.effective_chat.id, text=text)
         print("Echo by %s >>> %s" % (update.message.from_user.username, text))
     else:
-        context.bot.deleteMessage(chat_id = chatid, message_id = update.message.message_id)
+        context.bot.deleteMessage(chat_id=chatid, message_id=update.message.message_id)
         print("Failed to echo %s by %s" % (text, user))
+
+
 def Del(update, context):
     user = update.message.from_user.username
     chatid = update.effective_chat.id
-    n = int(update.message.text[5: ])
+    n = int(update.message.text[5:])
     i = 0
     if user in admins:
         print("Deleted %s messages by %s" % (n, user))
         while i <= n:
             try:
-                context.bot.deleteMessage(chat_id = update.effective_chat.id, message_id = update.message.message_id - i)
+                context.bot.deleteMessage(chat_id=update.effective_chat.id, message_id=update.message.message_id - i)
                 i += 1
             except:
                 print("Missing message")
                 i += 1
                 n += 1
     else:
-        context.bot.deleteMessage(chat_id = chatid, message_id = update.message.message_id)
+        context.bot.deleteMessage(chat_id=chatid, message_id=update.message.message_id)
         print("%s failed to delete %s messages(Access Denied)" % (user, n))
+
+
 def DelUser(update, context):
-    target = update.message.text[10: ]
+    target = update.message.text[10:]
     user = update.message.from_user.username
     if user in admins:
         cursor = con.cursor()
@@ -459,22 +533,27 @@ def DelUser(update, context):
             print("failed to remove %s" % target)
             con.rollback()
     else:
-        print("%s failed to remove %s" %(user, target))
-        update.message.reply_text("❌Access Denied❌" )
+        print("%s failed to remove %s" % (user, target))
+        update.message.reply_text("❌Access Denied❌")
+
+
 def AddScore(update, context):
     user = update.message.from_user.username
-    text = update.message.text[11: ]
+    text = update.message.text[11:]
     print(text)
     if user in admins:
         target = text.split(',')[0]
         score = text.split(',')[1]
 
-    #/add_score target,3000
+    # /add_score target,3000
+
+
 def Scores(update, context):
     chatid = update.effective_chat.id
     user = update.message.from_user.username
     if int(update.effective_chat.id) > 0:
-        print (chatid, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ", update.message.from_user.username, " >>> scores in PV")
+        print(chatid, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ",
+              update.message.from_user.username, " >>> scores in PV")
         cursor = con.cursor()
         select = "select * from bot_users ORDER BY `score` DESC"
         try:
@@ -487,13 +566,15 @@ def Scores(update, context):
                 # nosw = result[3]
                 # norm = result[4]
                 score = result[5]
-                context.bot.sendMessage(chat_id = update.effective_chat.id, text = "%s ➡️ (%s) Score" % (user, score))
+                context.bot.sendMessage(chat_id=update.effective_chat.id, text="%s ➡️ (%s) Score" % (user, score))
         except:
             print("Error printing in stats!")
+
+
 def Scores_options(update, context, user):
     chatid = update.effective_chat.id
     if int(update.effective_chat.id) > 0:
-        print (chatid, " ", user, " >>> scores in PV")
+        print(chatid, " ", user, " >>> scores in PV")
         cursor = con.cursor()
         select = "select * from bot_users ORDER BY `score` DESC"
         try:
@@ -506,14 +587,18 @@ def Scores_options(update, context, user):
                 # nosw = result[3]
                 # norm = result[4]
                 score = result[5]
-                context.bot.sendMessage(chat_id = update.effective_chat.id, text = "%s ➡️ (%s) Score" % (user, score))
+                context.bot.sendMessage(chat_id=update.effective_chat.id, text="%s ➡️ (%s) Score" % (user, score))
         except:
             print("Error printing in stats!")
+
+
 def Send(update, context):
     reply_keyboard = [['/send_activity\nکارکرد', '/send_project\nپروژه']]
     update.message.reply_text(
         'لطفا یک دسته بندی انتخاب کنید.',
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
+
+
 def Rep(update, context):
     query = update.callback_query
     chatid = query.message.chat_id
@@ -532,36 +617,75 @@ def Rep(update, context):
         Scores_options(update, context, user)
     elif query.data == "Send":
         Send(query, context)
+
+
 def Admin(update, context):
     chatid = update.effective_chat.id
     user = update.message.from_user.username
     if user in admins:
         print("%s is admin" % user)
-        context.bot.sendMessage(chat_id = chatid, text = "U R admin!")
+        btns = [
+            [InlineKeyboardButton('📋 Activities 📋', callback_data='showActivities'),
+            InlineKeyboardButton('📁 Projects 📁', callback_data='showProjects')],
+            [InlineKeyboardButton('✴️ Add Challenge ✴️', callback_data='addChallenge')],
+            [InlineKeyboardButton('☣️ Add Score to someone ☣️', callback_data='addScore')]
+        ]
+        admin_markup = InlineKeyboardMarkup(btns)
+        context.bot.sendMessage(chat_id=chatid, text="Welcome Sir !😎", reply_markup=admin_markup)
     else:
         print("%s is not admin" % user)
-        context.bot.sendMessage(chat_id = chatid, text = "U R not admin!")
+        context.bot.sendMessage(chat_id=chatid, text="U R not admin!")
+
+
+def Post(update, context):
+    user = update.message.from_user.username
+    chatid = update.effective_chat.id
+    if update.message.text[1] == 'p':
+        text = update.message.text[6:]
+    else:
+        text = update.message.text[5:]
+    context.bot.deleteMessage(chat_id=chatid, message_id=update.message.message_id)
+    cursor = con.cursor()
+    select = "select * from bot_users where username = '%s'" % user
+    try:
+        cursor.execute(select)
+        result = cursor.fetchone()
+        # post = result[ ? ]
+        con.commit()
+        print("Successfully fetched post from database!")
+    except:
+        print("Failed to fetch user post from database!")
+        con.rollback()
+    context.bot.sendMessage(chat_id=chatid, text=post + ' ( ' + user + ' ) ' + '\n\n\n' + text)
+
+
 def Validate(file):
     try:
         myfile = open(file, 'r')
     except:
         myfile = open(file, 'w')
         myfile.close()
-#-------------------------Conversations-------------------------#
+
+
+# -------------------------Conversations-------------------------#
 user_activity = " "
 CATEGORY_A, SUBJECT_A, DESCRIPTION_A = range(3)
+
+
 def SendActivity(update, context):
     Validate('activity_file.txt')
     user = update.message.from_user.username
     print("%s  >>> SendActivity" % user)
-    reply_keyboard = [['Website', 'Android']] # 📱 🌐
+    reply_keyboard = [['Website', 'Android']]  # 📱 🌐
     global user_activity
     user_activity = ''
-    user_activity += "%s,%s," %(str(datetime.now()), user)
+    user_activity += "%s,%s," % (str(datetime.now()), user)
     update.message.reply_text(
         'شما میتوانید با استفاده از /cancel فرایند را در هر جایی پایان دهید. لطفا دسته بندی را انتخاب کنید!',
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
     return CATEGORY_A
+
+
 def category_a(update, context):
     text = update.message.text
     global user_activity
@@ -569,12 +693,16 @@ def category_a(update, context):
     update.message.reply_text('بسیار خب. حالا موضوع کارکردتو بفرست. مثلا :\nیادگیری زبان جدید',
                               reply_markup=ReplyKeyboardRemove())
     return SUBJECT_A
+
+
 def subject_a(update, context):
     text = update.message.text
     global user_activity
     user_activity += "%s," % text
     update.message.reply_text('حالا توضیحات رو بفرست. مثلا: \nمن یادگیری زبان جاواسکریپت رو شروع کردم.')
     return DESCRIPTION_A
+
+
 def description_a(update, context):
     text = update.message.text
     global user_activity
@@ -584,14 +712,20 @@ def description_a(update, context):
     f.close()
     update.message.reply_text('کارکرد شما ذخیره شد. شما 200 امتیاز دریافت کردید')
     return ConversationHandler.END
+
+
 def cancel(update, context):
     user = update.message.from_user.username
     update.message.reply_text('فرایند لغو شد!',
                               reply_markup=ReplyKeyboardRemove())
     return ConversationHandler.END
+
+
 #                    ==========                      #
 user_project = " "
 CATEGORY, SUBJECT, DESCRIPTION, PHOTO, VIDEO, FILE = range(6)
+
+
 def SendProject(update, context):
     Validate('project_file.txt')
     user = update.message.from_user.username
@@ -599,11 +733,13 @@ def SendProject(update, context):
     reply_keyboard = [['Website', 'Android']]
     global user_project
     user_project = ''
-    user_project += "%s,%s," %(str(datetime.now()), user)
+    user_project += "%s,%s," % (str(datetime.now()), user)
     update.message.reply_text(
         'شما میتوانید با استفاده از /cancel فرایند را در هر جایی پایان دهید. لطفا دسته بندی را انتخاب کنید!',
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
     return CATEGORY
+
+
 def category(update, context):
     text = update.message.text
     global user_project
@@ -611,32 +747,40 @@ def category(update, context):
     update.message.reply_text('بسیار خب. حالا موضوع کارکردتو بفرست. مثلا :\nیادگیری زبان جدید',
                               reply_markup=ReplyKeyboardRemove())
     return SUBJECT
+
+
 def subject(update, context):
     text = update.message.text
     global user_project
     user_project += "%s," % text
     update.message.reply_text('حالا توضیحات رو بفرست. مثلا: \nمن یادگیری زبان جاواسکریپت رو شروع کردم.')
     return DESCRIPTION
+
+
 def description(update, context):
     text = update.message.text
     global user_project
     user_project += "%s," % text
     update.message.reply_text('اگه از پروژت عکس داری برام بفرست اگر نه از /skip استفاده کن.')
     return PHOTO
+
+
 def photo(update, context):
     user = update.message.from_user.username
     photo_file = update.message.photo[-1].get_file()
-    photo_file.download('media/%s-%s.jpg' %(user, datetime.now()))
+    photo_file.download('/media/%s-%s.jpg' % (user, datetime.date(datetime.now())))
     global user_project
-    user_project += "media/%s-%s.jpg" %(user, datetime.now())
+    user_project += "/media/%s-%s.jpg" % (user, datetime.date(datetime.now()))
     update.message.reply_text('اگه از پروژت فیلم داری برام بفرست اگرنه از /skip استفاده کن.')
     return VIDEO
+
+
 def video(update, context):
     user = update.message.from_user.username
     video_file = update.message.video[-1].get_file()
-    video_file.download('media/%s-%s.mp4' %(user, datetime.now()))
+    video_file.download('media/%s-%s.mp4' % (user, datetime.date(datetime.now())))
     global user_project
-    user_project += "media/%s-%s.mp4\n" %(user, datetime.now())
+    user_project += "media/%s-%s.mp4\n" % (user, datetime.date(datetime.now()))
     f = open('project_file.txt', 'a')
     f.write(user_project)
     f.close()
@@ -644,12 +788,16 @@ def video(update, context):
     # update.message.reply_text('گرفتمش حالا فایل پروژه رو برام بفرست یا از /skip استفاده کن.')
     # return FILE
     return ConversationHandler.END
+
+
 def SkipPhoto(update, context):
     print("No photo recived")
     global user_project
     user_project += "No photo,"
     update.message.reply_text('اگه از پروژت فیلم داری برام بفرست اگرنه از /skip استفاده کن.')
     return VIDEO
+
+
 def SkipVideo(update, context):
     print("No video recived")
     global user_project
@@ -659,12 +807,17 @@ def SkipVideo(update, context):
     f.close()
     update.message.reply_text('پروژه شما ذخیره شد. شما 500 امتیاز دریافت کردید')
     return ConversationHandler.END
+
+
 def cancel(update, context):
     user = update.message.from_user.username
-    update.message.reply_text('Bye! I hope we can talk again some day.',
+    print("%s canceled the proccess!" % user)
+    update.message.reply_text('فرایند لغو شد',
                               reply_markup=ReplyKeyboardRemove())
     return ConversationHandler.END
-#-------------------------Handlers-------------------------#
+
+
+# -------------------------Handlers-------------------------#
 start_handler = CommandHandler('start', Start)
 stats_handler = CommandHandler('stats', Stats)
 mystats_handler = CommandHandler('mystats', Mystats)
@@ -682,11 +835,11 @@ del_user_handler = CommandHandler('del_user', DelUser)
 add_score_handler = CommandHandler('add_score', AddScore)
 admin_handler = CommandHandler('admin', Admin)
 scores_handler = CommandHandler('scores', Scores)
-#manager_handler = CommandHandler('XYZ', AddAdmin)
+# manager_handler = CommandHandler('XYZ', AddAdmin)
 text_handler = MessageHandler(Filters.text, Text)
 forwarded_handler = MessageHandler(Filters.forwarded, Forwarded)
 reply_handler = MessageHandler(Filters.reply, Reply)
-#-------------------------Conversation Handlers-------------------------#
+# -------------------------Conversation Handlers-------------------------#
 send_activity_handler = ConversationHandler(
     entry_points=[CommandHandler('send_activity', SendActivity)],
 
@@ -711,17 +864,17 @@ send_project_handler = ConversationHandler(
         DESCRIPTION: [MessageHandler(Filters.text, description)],
 
         PHOTO: [MessageHandler(Filters.photo, photo),
-        CommandHandler('skip', SkipPhoto)],
+                CommandHandler('skip', SkipPhoto)],
 
         VIDEO: [MessageHandler(Filters.video, video),
-        CommandHandler('skip', SkipVideo)]
+                CommandHandler('skip', SkipVideo)]
 
         # FILE: [MessageHandler(Filters.document, file)]
     },
 
     fallbacks=[CommandHandler('cancel', cancel)]
 )
-#-------------------------Add Handlers-------------------------#
+# -------------------------Add Handlers-------------------------#
 dp.add_handler(send_activity_handler)
 dp.add_handler(send_project_handler)
 dp.add_handler(start_handler)
@@ -744,13 +897,13 @@ dp.add_handler(check_scores_handler)
 dp.add_handler(admin_handler)
 dp.add_handler(scores_handler)
 dp.add_handler(add_score_handler)
-#-------------------------||||||||||||-------------------------#
+# -------------------------||||||||||||-------------------------#
 updater.start_polling()
 updater.idle()
-#-------------------------||||||||||||-------------------------#
-#CLI robots
-#API robots
-#what is CLI?
+# -------------------------||||||||||||-------------------------#
+# CLI robots
+# API robots
+# what is CLI?
 
 # import mysql.connector
 # con = mysql.connector.connect(
@@ -763,4 +916,4 @@ updater.idle()
 #     # host = "sizata99.mysql.pythonanywhere-services.com",
 #     # database = "sizata99$bot"
 # )
-#/echo ربات به مدت 10 دقیقه غیرفعال میشود
+# /echo ربات به مدت 10 دقیقه غیرفعال میشود

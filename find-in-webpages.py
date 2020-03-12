@@ -1,12 +1,39 @@
 import requests
 import re
-url0 = 'http://m-taghizadeh.ir'
-url1 = 'https://soft98.ir'
-url2 = 'https://google.com'
-response = requests.get(url2)
-print(response.text)
-emails = re.findall("[a-zA-Z0-9.]+@[a-zA-Z]+.[a-zA-Z]+", response.text)
-print(emails)
-title = re.findall("<title>[a-zA-Z0-9.]+</title>", response.text)
-title = title[0]
-print(title[7:-8])
+
+
+def find_title(url):
+    resp = requests.get(url)
+    title = re.findall("<title>[a-zA-Z0-9.]+</title>", resp.text)
+    title = title[0]
+    return title[7:-8]
+
+
+def find_emails(url):
+    resp = requests.get(url)
+    email_list = re.findall("[a-zA-Z0-9.]+@[a-zA-Z]+.[a-zA-Z]+", resp.text)
+    return email_list
+
+
+def find_phone_numbers(url):
+    resp = requests.get(url)
+    phone_number_list = re.findall("'+'", resp.text)
+    return phone_number_list
+
+
+def main():
+    while True:
+        url = input("Please enter the url or address of web page:")
+        action = input("m > emails || t > title || n > phone numbers\nChoose an option : ")
+        if 'http' not in url and 'https' not in url:
+            url = 'http://' + url
+        if action == 'm':
+            print(find_emails(url))
+        elif action == 't':
+            print(find_title(url))
+        elif action == 'n':
+            print(find_phone_numbers(url))
+
+
+if __name__ == '__main__':
+    main()

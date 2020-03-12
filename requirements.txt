@@ -1,3 +1,4 @@
+requests
 pymysql
 python-telegram-bot
 mysql-connector-python
