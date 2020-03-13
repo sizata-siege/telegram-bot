@@ -17,6 +17,7 @@
 # custom select users stats full . avg length of messages
 # add challenge adding to admin panel
 # context.bot.sendMessage(username = 'IR_SIZATA_SIEGE', text='Hi')
+# setting.json <<< auto score activities = 0 ,auro score projects
 version = 7.0
 # -------------------------Import tools-------------------------#
 from time import sleep
@@ -627,11 +628,12 @@ def Admin(update, context):
         btns = [
             [InlineKeyboardButton('📋 Activities 📋', callback_data='showActivities'),
             InlineKeyboardButton('📁 Projects 📁', callback_data='showProjects')],
-            [InlineKeyboardButton('✴️ Add Challenge ✴️', callback_data='addChallenge')],
+            [InlineKeyboardButton('❇️✴️ Add Challenge ✴️❇️', callback_data='addChallenge')],
             [InlineKeyboardButton('☣️ Add Score to someone ☣️', callback_data='addScore')]
         ]
         admin_markup = InlineKeyboardMarkup(btns)
-        context.bot.sendMessage(chat_id=chatid, text="Welcome Sir !😎", reply_markup=admin_markup)
+        #data_list = loadData()
+        context.bot.sendMessage(chat_id=chatid, text="Welcome Sir !😎\n", reply_markup=admin_markup)# activities : 3 \n projects : 5
     else:
         print("%s is not admin" % user)
         context.bot.sendMessage(chat_id=chatid, text="U R not admin!")

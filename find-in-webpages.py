@@ -20,6 +20,12 @@ def find_phone_numbers(url):
     phone_number_list = re.findall("'+'", resp.text)
     return phone_number_list
 
+def jetBrains():
+    for i in range(500, 5000):
+        resp = requests.get('https://jb.gg/' + str(i))
+        print('https://jb.gg/' + str(i))
+        print(resp.text)
+
 
 def main():
     while True:
@@ -33,6 +39,11 @@ def main():
             print(find_title(url))
         elif action == 'n':
             print(find_phone_numbers(url))
+# def main():
+#     # jetBrains()
+#     resp = requests.get('https://jb.gg/' + '501')
+#     print('https://jb.gg/' + '500')
+#     print(len(resp.text))
 
 
 if __name__ == '__main__':
