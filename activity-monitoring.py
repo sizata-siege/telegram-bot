@@ -18,13 +18,20 @@
 # add challenge adding to admin panel
 # context.bot.sendMessage(username = 'IR_SIZATA_SIEGE', text='Hi')
 # setting.json <<< auto score activities = 0 ,auro score projects
+# /maintenance >>> for i in groups send planned a maintenance for 30 mins
+# add a groups list and add the chai id s to it
+# parse mode and html desighn in messages
+# job_queue = updater.job_queue
+# https://github.com/python-telegram-bot/python-telegram-bot/wiki/Extensions-%E2%80%93-JobQueue
+
 version = 7.0
 # -------------------------Import tools-------------------------#
 from time import sleep
 from datetime import datetime
+import json
 # -------------------------Import Telegram-------------------------#
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler, ConversationHandler
-from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove, ChatAction
 
 # Token = "656547710:AAFciOC_C4Ch1KJDjRu0CTKc_UJT1aR3tms"
 Token = "1017559271:AAG-Rj4fc14ondDY9ABeVfzdK2PkFEMvmhs"
@@ -41,6 +48,11 @@ admins = ["IR_SIZATA_SIEGE", "alireza_rhm99"]
 
 
 # -------------------------Functions-------------------------#
+def time():
+    now = str(datetime.now())
+    return now[0:10] + '-' + now[11:13] + '-' + now[14:16] + '-' + now[17:19]
+
+
 def checkUsername(user):
     cursor = con.cursor()
     select = "select * from bot_users where username = '%s'" % user
@@ -131,7 +143,7 @@ def scoreReply(user, text, isGroup):
 def addUser(user):
     if user:
         cursor = con.cursor()
-        add = "insert into bot_users VALUES ('%s', 0, 0, 0, 0, 0)" % user
+        add = "insert into bot_users VALUES ('%s', 0, 0, 0, 0, 0, 0, 0)" % user
         try:
             cursor.execute(add)
             con.commit()
@@ -149,14 +161,19 @@ def Start(update, context):
     chatid = update.effective_chat.id
     user = update.message.from_user.username
     name = update.message.from_user.first_name
+    # context.bot.sendMessage(user_id='SIZATA_Se7en', text='Hi')
     if int(chatid) < 0:
         if update.effective_chat.id == 753039129 or update.effective_chat.id == 106652269:
+            context.bot.send_chat_action(chat_id=chatid, action=ChatAction.TYPING)
+            sleep(3)
             context.bot.sendMessage(chat_id=update.effective_chat.id, text="✅ Bot started ✅")
             context.bot.sendMessage(chat_id=update.effective_chat.id,
                                     text="⚠️All messages will effect users activity⚠️")
             print(chatid, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name, " ", user,
                   " >>> start in group")
         else:
+            context.bot.send_chat_action(chat_id=chatid, action=ChatAction.TYPING)
+            sleep(3)
             context.bot.sendMessage(chat_id=update.effective_chat.id, text="🚫You can't start the bot in group🚫")
     else:
         btns = [
@@ -170,6 +187,8 @@ def Start(update, context):
             # InlineKeyboardButton("Test Option 2", callback_data = "test")]
         ]
         start_markup = InlineKeyboardMarkup(btns)
+        context.bot.send_chat_action(chat_id=chatid, action=ChatAction.TYPING)
+        sleep(3)
         context.bot.sendMessage(chat_id=update.effective_chat.id,
                                 text="Hi %s! 👋\nHow can I help U?" % name,
                                 reply_markup=start_markup)
@@ -234,9 +253,11 @@ def Stats(update, context):
                 nosw = result[3]
                 norm = result[4]
                 score = result[5]
+                nosa = result[6]
+                nosp = result[7]
                 context.bot.sendMessage(chat_id=update.effective_chat.id,
-                                        text="%s ➡️ (%s) Score 🔸 (%s) M 🔸 (%s) F 🔸 (%s) R 🔸 (%s) W" % (
-                                            user, score, nosm, nofm, norm, nosw))
+                                        text="%s ➡️ (%s) Score 🔸 (%s) M 🔸 (%s) F 🔸 (%s) R 🔸 (%s) W 🔸 (%s) A 🔸 (%s) P" % (
+                                            user, score, nosm, nofm, norm, nosw, nosa, nosp))
         except:
             print("Error printing in stats!")
     else:
@@ -286,8 +307,10 @@ def Mystats(update, context):
             nofm = result[2]
             norm = result[4]
             score = result[5]
+            nosa = result[6]
+            nosp = result[7]
             context.bot.sendMessage(chat_id=update.effective_chat.id,
-                                    text="%s➡️(%s) Score🔸(%s) Messages🔸(%s) Forwards🔸(%s) Replies" % (
+                                    text="%s➡️(%s) Score🔸(%s) Messages🔸(%s) Forwards🔸(%s) Replies🔸(%s) Activity🔸(%s) Projects" % (
                                         user, score, nosm, nofm, norm))
         except:
             print("Error printing!")
@@ -301,9 +324,10 @@ def mystats(update, context):
     # user = update.message.from_user.username
     if int(chatid) < 0:
         print(chatid, " ", user, " ", " >>> MyStats in group")
+        context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+        sleep(3)
         context.bot.sendMessage(chat_id=chatid, text="🚫You can't use this command in the group🚫")
     else:
-        query = update.callback_query
         print(chatid, " ", user, " ", " >>> MyStats in PV")
         cursor = con.cursor()
         select = "select * from bot_users where username = '%s'" % user
@@ -315,11 +339,17 @@ def mystats(update, context):
             nofm = result[2]
             norm = result[4]
             score = result[5]
+            nosa = result[6]
+            nosp = result[7]
+            context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+            sleep(3)
             context.bot.sendMessage(chat_id=chatid,
-                                    text="%s➡️(%s) Score🔸(%s) Messages🔸(%s) Forwards🔸(%s) Replies" % (
-                                        user, score, nosm, nofm, norm))
+                                    text="%s➡️(%s) Score🔸(%s) Messages🔸(%s) Forwards🔸(%s) Replies🔸(%s) Activity🔸(%s) Projects" % (
+                                        user, score, nosm, nofm, norm, nosa, nosp))
         except:
             print("Error printing!")
+            context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+            sleep(3)
             context.bot.sendMessage(chat_id=chatid, text="❌Failed to send your data❌")
 
 
@@ -346,7 +376,9 @@ def Create(update, context):
         nofm INTEGER,
         nosw INTEGER,
         norm INTEGER,
-        score INTEGER)"""
+        score INTEGER,
+        nosa INTEGER,
+        nosp INTEGER)"""
     cursor = con.cursor()
     cursor.execute(create)
     con.commit()
@@ -371,6 +403,8 @@ def NewAdmin(update, context):
 
 
 def Status(update, context):
+    context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+    sleep(1)
     context.bot.sendMessage(chat_id=update.effective_chat.id, text="✅ Bot is Online! ✅")
     print(update.effective_chat.id, " ", update.message.from_user.first_name, " ", update.message.from_user.last_name,
           " ", update.message.from_user.username, " >>> Status")
@@ -381,8 +415,14 @@ def ResetAll(update, context):
     user = update.message.from_user.username
     if user in admins:
         # context.bot.deleteMessage(chat_id = update.effective_chat.id, message_id = update.message.message_id)
+        context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+        sleep(3)
         context.bot.sendMessage(chat_id=update.effective_chat.id, text="⏳Checking scores!⏳")
+        context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+        sleep(3)
         context.bot.sendMessage(chat_id=update.effective_chat.id, text="🌐Updating database!🌐")
+        context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+        sleep(3)
         context.bot.sendMessage(chat_id=update.effective_chat.id, text="✅Reseted all scores!✅")
         cursor = con.cursor()
         select = "select * from bot_users"
@@ -395,24 +435,34 @@ def ResetAll(update, context):
                 nosw = 0
                 norm = 0
                 score = 0
+                nosa = 0
+                nosp = 0
                 update_m = "update bot_users set nosm = %s" % nosm
                 update_f = "update bot_users set nofm = %s" % nofm
                 update_w = "update bot_users set nosw = %s" % nosw
                 update_r = "update bot_users set norm = %s" % norm
                 update_s = "update bot_users set score = %s" % score
+                update_a = "update bot_users set nosa = %s" % nosa
+                update_p = "update bot_users set nosp = %s" % nosp
                 cursor.execute(update_m)
                 cursor.execute(update_f)
                 cursor.execute(update_w)
                 cursor.execute(update_r)
                 cursor.execute(update_s)
+                cursor.execute(update_a)
+                cursor.execute(update_p)
                 con.commit()
             print("Reset All")
+            context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+            sleep(3)
             context.bot.sendMessage(chat_id=update.effective_chat.id, text="⚠️All data was reset by admin!⚠️")
         except:
             print("Error updating!")
             con.rollback()
     else:
         print("%s tried to reset data!" % user)
+        context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+        sleep(3)
         context.bot.sendMessage(chat_id=update.effective_chat.id, text="❌U R not admin!❌")
 
 
@@ -421,8 +471,14 @@ def CheckScores(update, context):
     chatid = update.message.chat_id
     print("%s >>> Check scores" % user)
     if user == "IR_SIZATA_SIEGE":
+        context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+        sleep(3)
         context.bot.sendMessage(chat_id=update.effective_chat.id, text="⏳Checking scores!⏳")
+        context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+        sleep(3)
         context.bot.sendMessage(chat_id=update.effective_chat.id, text="🌐Updating database!🌐")
+        context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+        sleep(3)
         context.bot.sendMessage(chat_id=update.effective_chat.id, text="✅Scores Updated!✅")
         cursor = con.cursor()
         select = "select * from bot_users"
@@ -449,6 +505,8 @@ def CheckScores(update, context):
             con.rollback()
     else:
         print("%s >>> check scores" % user)
+        context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+        sleep(3)
         context.bot.sendMessage(chat_id=update.effective_chat.id, text="❌U R not admin!❌")
 
 
@@ -463,6 +521,8 @@ def Op(update, context):
         [InlineKeyboardButton("option1", callback_data="700")]
     ]
     printkey = InlineKeyboardMarkup(key)
+    context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+    sleep(3)
     context.bot.sendMessage(chat_id=update.effective_chat.id,
                             text="Hi! 👋\nHow can I help U?\n/mystats >>> فعالیت من در تبادل اطلاعات",
                             reply_markup=printkey)
@@ -472,16 +532,22 @@ def test(update, context):
     query = update.callback_query
     user = query.from_user.username
     chatid = query.message.chat_id
+    context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+    sleep(3)
     context.bot.sendMessage(chat_id=chatid, text="😊 This is a test option, so it doesn't work! 😁")
     print(user, ">>> test option")
 
 
 def MeasurMethod(chatid, context):
+    context.bot.send_chat_action(chat_id=chatid, action=ChatAction.TYPING)
+    sleep(5)
     context.bot.sendMessage(chat_id=chatid,
                             text="Messages X 30\nForwards X 35\nReplies X 40\nWords X 1\nبرای مثال پیامی که طولش 4 کلمه هست امتیاز 34 میگیره و پیامی که 9 کلمه هست 39 امتیاز داره . اکه ریپلای باشه به همین صورت!")
 
 
 def Version(chatid, context):
+    context.bot.send_chat_action(chat_id=chatid, action=ChatAction.TYPING)
+    sleep(3)
     context.bot.sendMessage(chat_id=chatid, text="@activity_monitoring_bot  version %s" % version)
 
 
@@ -491,6 +557,8 @@ def Echo(update, context):
     text = update.message.text[5:]
     if user in admins:
         context.bot.deleteMessage(chat_id=update.effective_chat.id, message_id=update.message.message_id)
+        context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+        sleep(3)
         context.bot.sendMessage(chat_id=update.effective_chat.id, text=text)
         print("Echo by %s >>> %s" % (update.message.from_user.username, text))
     else:
@@ -527,14 +595,20 @@ def DelUser(update, context):
         try:
             cursor.execute(remove)
             print("removed %s" % target)
+            context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+            sleep(3)
             update.message.reply_text("⚠️Successfully removed %s" % target)
             con.commit()
         except:
+            context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+            sleep(3)
             update.message.reply_text("❌Failed to remove %s" % target)
             print("failed to remove %s" % target)
             con.rollback()
     else:
         print("%s failed to remove %s" % (user, target))
+        context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+        sleep(3)
         update.message.reply_text("❌Access Denied❌")
 
 
@@ -595,12 +669,14 @@ def Scores_options(update, context, user):
 
 def Send(update, context):
     reply_keyboard = [['/send_activity\nکارکرد', '/send_project\nپروژه']]
-    update.message.reply_text(
-        'لطفا یک دسته بندی انتخاب کنید.',
+    context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+    sleep(3)
+    context.bot.sendMessage(chat_id=update.effective_chat.id,
+        text='لطفا یک دسته بندی انتخاب کنید.',
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
 
 
-def Rep(update, context):
+def CQH(update, context):
     query = update.callback_query
     chatid = query.message.chat_id
     user = query.message.from_user.username
@@ -617,25 +693,93 @@ def Rep(update, context):
     elif query.data == "scores":
         Scores_options(update, context, user)
     elif query.data == "Send":
-        Send(query, context)
+        Send(update, context)
+    #ADMIN PANEL
+    elif query.data == 'showActivities':
+        ShowActivities(query, context)
+    elif query.data == 'showProjects':
+        ShowProjects(query, context)
+    elif query.data == 'addChallenge':
+        AddChallenge(update, context)
+    elif query.data == 'addScore':
+        pass
+        #AddScore_option(update, context)
+    elif query.data == 'asa':
+        AutoScoreActivities(update, context)
+    elif query.data == 'asp':
+        AutoScoreProjects(update, context)
+    elif query.data == 'vacation':
+        Vacation(update, context)
+
+
+def ShowActivities(update, context):
+    print(update.message.from_user.username, '>>> showActivities')
+    f = open('activity_file.txt', 'r')
+    for line in f.readlines():
+        context.bot.send_chat_action(chat_id=update.message.chat_id, action=ChatAction.TYPING)
+        sleep(2)
+        date = line.split(',')[0]
+        user = line.split(',')[1]
+        category = line.split(',')[2]
+        subject = line.split(',')[3]
+        description = line.split(',')[4]
+        if category == 'Website':
+            context.bot.sendMessage(chat_id=update.message.chat_id, text='📅' + date + '\n\n👤' + user + '\n\n🌐' + category + '🌐\n\n🔶' + subject + '\n\n🔷' + description)
+        elif category == 'Android':
+            context.bot.sendMessage(chat_id=update.message.chat_id, text='📅' + date + '\n\n👤' + user + '\n\n📱' + category + '📱\n\n🔶' + subject + '\n\n🔷' + description)
+        context.bot.sendMessage(chat_id=update.message.chat_id, text='🔶🔶FINISH🔶🔶')
+        #📅, 👤, 🔶, 🔷, 🌐, 📱
+
+
+def ShowProjects(update, context):
+    print(update.message.from_user.username, '>>> showProjects')
+    f = open('project_file.txt', 'r')
+    for line in f.readlines():
+        context.bot.send_chat_action(chat_id=update.message.chat_id, action=ChatAction.TYPING)
+        sleep(2)
+        date = line.split(',')[0]
+        user = line.split(',')[1]
+        category = line.split(',')[2]
+        subject = line.split(',')[3]
+        description = line.split(',')[4]
+        picture_file = line.split(',')[5]
+        video_file = line.split(',')[6]
+        if category == 'Website':
+            context.bot.sendPhoto(chat_id=update.message.chat_id, photo=open(picture_file, 'rb'), caption='📅' + date + '\n\n👤' + user + '\n\n🌐' + category + '🌐\n\n🔶' + subject + '\n\n🔷' + description)
+        elif category == 'Android':
+            context.bot.sendPhoto(chat_id=update.message.chat_id, photo=open(picture_file, 'rb'), caption='📅' + date + '\n\n👤' + user + '\n\n🌐' + category + '🌐\n\n🔶' + subject + '\n\n🔷' + description)
+        if video_file == 'no-video.mp4\n':
+            context.bot.sendMessage(chat_id=update.message.chat_id, text='no video')
+        else:
+            context.bot.sendVideo(chat_id=update.message.chat_id, video=open(video_file[:-1], 'rb'))
+    context.bot.sendMessage(chat_id=update.message.chat_id, text='🔶🔶FINISH🔶🔶')
 
 
 def Admin(update, context):
     chatid = update.effective_chat.id
     user = update.message.from_user.username
     if user in admins:
-        print("%s is admin" % user)
+        print("%s loged in as admin" % user)
         btns = [
             [InlineKeyboardButton('📋 Activities 📋', callback_data='showActivities'),
             InlineKeyboardButton('📁 Projects 📁', callback_data='showProjects')],
-            [InlineKeyboardButton('❇️✴️ Add Challenge ✴️❇️', callback_data='addChallenge')],
-            [InlineKeyboardButton('☣️ Add Score to someone ☣️', callback_data='addScore')]
+            [InlineKeyboardButton('🏅 Add Challenge 🏅', callback_data='addChallenge')],
+            [InlineKeyboardButton('☣️ Add Score to someone ☣️', callback_data='addScore')],
+            [InlineKeyboardButton('😴 مرخصی 😴', callback_data='vacation')],
+            [InlineKeyboardButton('Auto score activities : %s' % 'on', callback_data='asa')],
+            [InlineKeyboardButton('Auto score projects : %s' % 'on', callback_data='asp')]
         ]
         admin_markup = InlineKeyboardMarkup(btns)
         #data_list = loadData()
+        context.bot.send_chat_action(chat_id=chatid, action=ChatAction.TYPING)
+        sleep(5)
+        context.bot.send_chat_action(chat_id=chatid, action=ChatAction.TYPING)
+        sleep(5)
         context.bot.sendMessage(chat_id=chatid, text="Welcome Sir !😎\n", reply_markup=admin_markup)# activities : 3 \n projects : 5
     else:
         print("%s is not admin" % user)
+        context.bot.send_chat_action(chat_id=chatid, action=ChatAction.TYPING)
+        sleep(3)
         context.bot.sendMessage(chat_id=chatid, text="U R not admin!")
 
 
@@ -682,6 +826,8 @@ def SendActivity(update, context):
     global user_activity
     user_activity = ''
     user_activity += "%s,%s," % (str(datetime.now()), user)
+    context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+    sleep(1)
     update.message.reply_text(
         'شما میتوانید با استفاده از /cancel فرایند را در هر جایی پایان دهید. لطفا دسته بندی را انتخاب کنید!',
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
@@ -692,6 +838,8 @@ def category_a(update, context):
     text = update.message.text
     global user_activity
     user_activity += "%s," % text
+    context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+    sleep(2)
     update.message.reply_text('بسیار خب. حالا موضوع کارکردتو بفرست. مثلا :\nیادگیری زبان جدید',
                               reply_markup=ReplyKeyboardRemove())
     return SUBJECT_A
@@ -701,6 +849,8 @@ def subject_a(update, context):
     text = update.message.text
     global user_activity
     user_activity += "%s," % text
+    context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+    sleep(2)
     update.message.reply_text('حالا توضیحات رو بفرست. مثلا: \nمن یادگیری زبان جاواسکریپت رو شروع کردم.')
     return DESCRIPTION_A
 
@@ -712,7 +862,9 @@ def description_a(update, context):
     f = open('activity_file.txt', 'a')
     f.write(user_activity)
     f.close()
-    update.message.reply_text('کارکرد شما ذخیره شد. شما 200 امتیاز دریافت کردید')
+    context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+    sleep(2)
+    update.message.reply_text('کارکرد شما در انتظار تایید است و پس از تایید امتیاز به شما افزوده خواهد شد')
     return ConversationHandler.END
 
 
@@ -736,6 +888,8 @@ def SendProject(update, context):
     global user_project
     user_project = ''
     user_project += "%s,%s," % (str(datetime.now()), user)
+    context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+    sleep(1)
     update.message.reply_text(
         'شما میتوانید با استفاده از /cancel فرایند را در هر جایی پایان دهید. لطفا دسته بندی را انتخاب کنید!',
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
@@ -746,6 +900,8 @@ def category(update, context):
     text = update.message.text
     global user_project
     user_project += "%s," % text
+    context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+    sleep(2)
     update.message.reply_text('بسیار خب. حالا موضوع کارکردتو بفرست. مثلا :\nیادگیری زبان جدید',
                               reply_markup=ReplyKeyboardRemove())
     return SUBJECT
@@ -755,6 +911,8 @@ def subject(update, context):
     text = update.message.text
     global user_project
     user_project += "%s," % text
+    context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+    sleep(2)
     update.message.reply_text('حالا توضیحات رو بفرست. مثلا: \nمن یادگیری زبان جاواسکریپت رو شروع کردم.')
     return DESCRIPTION
 
@@ -763,6 +921,8 @@ def description(update, context):
     text = update.message.text
     global user_project
     user_project += "%s," % text
+    context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+    sleep(2)
     update.message.reply_text('اگه از پروژت عکس داری برام بفرست اگر نه از /skip استفاده کن.')
     return PHOTO
 
@@ -770,23 +930,31 @@ def description(update, context):
 def photo(update, context):
     user = update.message.from_user.username
     photo_file = update.message.photo[-1].get_file()
-    photo_file.download('/media/%s-%s.jpg' % (user, datetime.date(datetime.now())))
+    t = time()
+    photo_file.download('media/%s-%s.jpg' % (user, t))
     global user_project
-    user_project += "/media/%s-%s.jpg" % (user, datetime.date(datetime.now()))
+    user_project += "media/%s-%s.jpg," % (user, t)
+    context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+    sleep(2)
     update.message.reply_text('اگه از پروژت فیلم داری برام بفرست اگرنه از /skip استفاده کن.')
     return VIDEO
 
 
 def video(update, context):
     user = update.message.from_user.username
-    video_file = update.message.video[-1].get_file()
-    video_file.download('media/%s-%s.mp4' % (user, datetime.date(datetime.now())))
+    # video_file = update.message.video[-1].get_file()
+    video_id = update.message.video.file_id
+    video_file = context.bot.get_file(video_id)
+    t = time()
+    video_file.download('media/%s-%s.mp4' % (user, t))
     global user_project
-    user_project += "media/%s-%s.mp4\n" % (user, datetime.date(datetime.now()))
+    user_project += "media/%s-%s.mp4\n" % (user, t)
     f = open('project_file.txt', 'a')
     f.write(user_project)
     f.close()
-    update.message.reply_text('پروژه شما ذخیره شد. شما 500 امتیاز دریافت کردید')
+    context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+    sleep(2)
+    update.message.reply_text('پروژه شما ذخیره شد و پس از تایید امتیاز شما افزوده خواهد شد')
     # update.message.reply_text('گرفتمش حالا فایل پروژه رو برام بفرست یا از /skip استفاده کن.')
     # return FILE
     return ConversationHandler.END
@@ -795,7 +963,9 @@ def video(update, context):
 def SkipPhoto(update, context):
     print("No photo recived")
     global user_project
-    user_project += "No photo,"
+    user_project += "no-photo.jpg,"
+    context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+    sleep(2)
     update.message.reply_text('اگه از پروژت فیلم داری برام بفرست اگرنه از /skip استفاده کن.')
     return VIDEO
 
@@ -803,11 +973,13 @@ def SkipPhoto(update, context):
 def SkipVideo(update, context):
     print("No video recived")
     global user_project
-    user_project += "No video\n"
+    user_project += "no-video.mp4\n"
     f = open('project_file.txt', 'a')
     f.write(user_project)
     f.close()
-    update.message.reply_text('پروژه شما ذخیره شد. شما 500 امتیاز دریافت کردید')
+    context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+    sleep(2)
+    update.message.reply_text('پروژه شما ذخیره شد و پس از تایید امتیاز شما افزوده خواهد شد')
     return ConversationHandler.END
 
 
@@ -824,7 +996,6 @@ start_handler = CommandHandler('start', Start)
 stats_handler = CommandHandler('stats', Stats)
 mystats_handler = CommandHandler('mystats', Mystats)
 option_handler = CommandHandler('op', Op)
-rep_handler = CallbackQueryHandler(Rep)
 create_handler = CommandHandler('create', Create)
 create_admins_handler = CommandHandler('create_admins', CreateAdmins)
 new_admin_handler = CommandHandler('new_admin', NewAdmin)
@@ -841,6 +1012,7 @@ scores_handler = CommandHandler('scores', Scores)
 text_handler = MessageHandler(Filters.text, Text)
 forwarded_handler = MessageHandler(Filters.forwarded, Forwarded)
 reply_handler = MessageHandler(Filters.reply, Reply)
+cqh_handler = CallbackQueryHandler(CQH)
 # -------------------------Conversation Handlers-------------------------#
 send_activity_handler = ConversationHandler(
     entry_points=[CommandHandler('send_activity', SendActivity)],
@@ -891,7 +1063,7 @@ dp.add_handler(reply_handler)
 dp.add_handler(forwarded_handler)
 dp.add_handler(text_handler)
 dp.add_handler(option_handler)
-dp.add_handler(rep_handler)
+dp.add_handler(cqh_handler)
 dp.add_handler(echo_handler)
 dp.add_handler(del_handler)
 dp.add_handler(del_user_handler)
