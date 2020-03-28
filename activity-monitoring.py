@@ -31,7 +31,7 @@ from datetime import datetime
 import json
 # -------------------------Import Telegram-------------------------#
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler, ConversationHandler
-from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove, ChatAction
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove, ChatAction, ParseMode
 
 # Token = "656547710:AAFciOC_C4Ch1KJDjRu0CTKc_UJT1aR3tms"
 Token = "1017559271:AAG-Rj4fc14ondDY9ABeVfzdK2PkFEMvmhs"
@@ -796,13 +796,19 @@ def Post(update, context):
     try:
         cursor.execute(select)
         result = cursor.fetchone()
-        # post = result[ ? ]
-        con.commit()
+        post = result[8]
         print("Successfully fetched post from database!")
     except:
         print("Failed to fetch user post from database!")
-        con.rollback()
-    context.bot.sendMessage(chat_id=chatid, text=post + ' ( ' + user + ' ) ' + '\n\n\n' + text)
+    content = """ <b>%s</b>
+    <h1>(%s)</h1>
+    
+
+    %s
+    
+    """% (post, user, text)
+    # post + '\n( ' + user + ' )\n' + '\n' + text
+    context.bot.sendMessage(chat_id=chatid, text=content, parse_mode=ParseMode.HTML)
 
 
 def Validate(file):
@@ -1008,6 +1014,8 @@ del_user_handler = CommandHandler('del_user', DelUser)
 add_score_handler = CommandHandler('add_score', AddScore)
 admin_handler = CommandHandler('admin', Admin)
 scores_handler = CommandHandler('scores', Scores)
+post_handler = CommandHandler('post', Post)
+job_handler = CommandHandler('job', Post)
 # manager_handler = CommandHandler('XYZ', AddAdmin)
 text_handler = MessageHandler(Filters.text, Text)
 forwarded_handler = MessageHandler(Filters.forwarded, Forwarded)
@@ -1071,6 +1079,8 @@ dp.add_handler(check_scores_handler)
 dp.add_handler(admin_handler)
 dp.add_handler(scores_handler)
 dp.add_handler(add_score_handler)
+dp.add_handler(post_handler)
+dp.add_handler(job_handler)
 # -------------------------||||||||||||-------------------------#
 updater.start_polling()
 updater.idle()
