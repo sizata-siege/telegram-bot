@@ -9,5 +9,8 @@ members_list = [Amirhosseyn, Alireza, Mojtaba]
 Tabadol = Group('Tabadol', Alireza, 34567890, moderators_list, members_list)
 
 print(Amirhosseyn.score)
-Amirhosseyn.score = 10
+Amirhosseyn.score_text('Hi amir how are you ?')
 print(Amirhosseyn.score)
+print(Amirhosseyn.__reduce__())
+
+# del Amirhosseyn

@@ -4,7 +4,7 @@
 # add /post = /job 
 # save user chatid in database
 # Save group chatid in database
-# set limit for scotes by admin
+# set limit for scores by admin for example if less than 400 per week then warn both admin and the user
 # release score board in group for admin
 # /mtn = /maintenance (maintenance)
 # add notebook option and create a file for each users notes
@@ -17,11 +17,13 @@
 # custom select users stats full . avg length of messages
 # add challenge adding to admin panel
 # context.bot.sendMessage(username = 'IR_SIZATA_SIEGE', text='Hi')
-# setting.json <<< auto score activities = 0 ,auro score projects
+# setting.json <<< auto score activities = 0 ,auto score projects
 # /maintenance >>> for i in groups send planned a maintenance for 30 mins
 # add a groups list and add the chai id s to it
-# parse mode and html desighn in messages
+# parse mode and html design in messages
 # job_queue = updater.job_queue
+# ravanshenasi user based on somethings like average message length
+# add some schedule for admin panel to set the auto-reset period ( monthly / weekly / ... )
 # https://github.com/python-telegram-bot/python-telegram-bot/wiki/Extensions-%E2%80%93-JobQueue
 
 version = 7.0
@@ -718,16 +720,39 @@ def ShowActivities(update, context):
     for line in f.readlines():
         context.bot.send_chat_action(chat_id=update.message.chat_id, action=ChatAction.TYPING)
         sleep(2)
-        date = line.split(',')[0]
-        user = line.split(',')[1]
-        category = line.split(',')[2]
-        subject = line.split(',')[3]
-        description = line.split(',')[4]
-        if category == 'Website':
-            context.bot.sendMessage(chat_id=update.message.chat_id, text='📅' + date + '\n\n👤' + user + '\n\n🌐' + category + '🌐\n\n🔶' + subject + '\n\n🔷' + description)
-        elif category == 'Android':
-            context.bot.sendMessage(chat_id=update.message.chat_id, text='📅' + date + '\n\n👤' + user + '\n\n📱' + category + '📱\n\n🔶' + subject + '\n\n🔷' + description)
-        context.bot.sendMessage(chat_id=update.message.chat_id, text='🔶🔶FINISH🔶🔶')
+        try:
+            date = line.split(',')[0]
+        except:
+            context.bot.sendMessage(chat_id=update.message.chat_id, text='❌missing date❌')
+            break
+        try:
+            user = line.split(',')[1]
+        except:
+            context.bot.sendMessage(chat_id=update.message.chat_id, text='❌missing User❌')
+            break
+        try:
+            category = line.split(',')[2]
+        except:
+            context.bot.sendMessage(chat_id=update.message.chat_id, text='❌missing Category❌')
+            break
+        try:
+            subject = line.split(',')[3]
+        except:
+            context.bot.sendMessage(chat_id=update.message.chat_id, text='❌missing Subject❌')
+            break
+        try:
+            description = line.split(',')[4]
+        except:
+            context.bot.sendMessage(chat_id=update.message.chat_id, text='❌missing Description❌')
+            break
+            if category == 'Website':
+                context.bot.sendMessage(chat_id=update.message.chat_id, text='📅' + date + '\n\n👤' + user + '\n\n🌐' + category + '🌐\n\n🔶' + subject + '\n\n🔷' + description)
+            elif category == 'Android':
+                context.bot.sendMessage(chat_id=update.message.chat_id, text='📅' + date + '\n\n👤' + user + '\n\n📱' + category + '📱\n\n🔶' + subject + '\n\n🔷' + description)
+        except:
+            context.bot.sendMessage(chat_id=update.message.chat_id, text='❌failed to list❌')
+            break
+    context.bot.sendMessage(chat_id=update.message.chat_id, text='🔶🔶FINISH🔶🔶')
         #📅, 👤, 🔶, 🔷, 🌐, 📱
 
 
@@ -737,13 +762,41 @@ def ShowProjects(update, context):
     for line in f.readlines():
         context.bot.send_chat_action(chat_id=update.message.chat_id, action=ChatAction.TYPING)
         sleep(2)
-        date = line.split(',')[0]
-        user = line.split(',')[1]
-        category = line.split(',')[2]
-        subject = line.split(',')[3]
-        description = line.split(',')[4]
-        picture_file = line.split(',')[5]
-        video_file = line.split(',')[6]
+        try:
+            date = line.split(',')[0]
+        except:
+            context.bot.sendMessage(chat_id=update.message.chat_id, text='❌missing date❌')
+            break
+        try:
+            user = line.split(',')[1]
+        except:
+            context.bot.sendMessage(chat_id=update.message.chat_id, text='❌missing user❌')
+            break
+        try:
+            category = line.split(',')[2]
+        except:
+            context.bot.sendMessage(chat_id=update.message.chat_id, text='❌missing category❌')
+            break
+        try:
+            subject = line.split(',')[3]
+        except:
+            context.bot.sendMessage(chat_id=update.message.chat_id, text='❌missing subject❌')
+            break
+        try:
+            description = line.split(',')[4]
+        except:
+            context.bot.sendMessage(chat_id=update.message.chat_id, text='❌missing description❌')
+            break
+        try:
+            picture_file = line.split(',')[5]
+        except:
+            context.bot.sendMessage(chat_id=update.message.chat_id, text='❌missing pic❌')
+            break
+        try:
+            video_file = line.split(',')[6]
+        except:
+            context.bot.sendMessage(chat_id=update.message.chat_id, text='❌missing video❌')
+            break
         if category == 'Website':
             context.bot.sendPhoto(chat_id=update.message.chat_id, photo=open(picture_file, 'rb'), caption='📅' + date + '\n\n👤' + user + '\n\n🌐' + category + '🌐\n\n🔶' + subject + '\n\n🔷' + description)
         elif category == 'Android':
