@@ -1,3 +1,4 @@
+telegram
 requests
 pymysql
 python-telegram-bot

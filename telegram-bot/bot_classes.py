@@ -10,9 +10,9 @@ from scoring_rules import *
 # ----------------------------------------------------------- #
 
 class User:
-    def __init__(self, username, chat_id, groups, first_name, last_name, post):
-        self.username = username
+    def __init__(self, chat_id, username, groups, first_name, last_name, post):
         self.chat_id = chat_id
+        self.username = username
         self.groups = []
         self.groups = groups
         self.first_name = first_name
@@ -68,16 +68,16 @@ class User:
 
 
 class Moderator(User):
-    def __init__(self, permission, username, chat_id, groups, first_name, last_name, post):
-        super().__init__(username, chat_id, groups, first_name, last_name, post)
+    def __init__(self, permission, chat_id, username, groups, first_name, last_name, post):
+        super().__init__(chat_id, username, groups, first_name, last_name, post)
         self.IsModerator = 1
         self.permission = permission
 
 
 # ----------------------------------------------------------- #
 class Admin(User):  # change to owner
-    def __init__(self, username, chat_id, groups, first_name, last_name, post):
-        super().__init__(username, chat_id, groups, first_name, last_name, post)
+    def __init__(self, chat_id, username, groups, first_name, last_name, post):
+        super().__init__(chat_id, username, groups, first_name, last_name, post)
         self.IsAdmin = 1
 
     def get_group_stats(self, group):

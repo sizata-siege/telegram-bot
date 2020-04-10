@@ -27,11 +27,11 @@
 # https://github.com/python-telegram-bot/python-telegram-bot/wiki/Extensions-%E2%80%93-JobQueue
 
 version = 7.0
-# -------------------------Import tools-------------------------#
+# -------------------------Import tools------------------------- #
 from time import sleep
 from datetime import datetime
 import json
-# -------------------------Import Telegram-------------------------#
+# -------------------------Import Telegram------------------------- #
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler, ConversationHandler
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove, ChatAction, ParseMode
 
@@ -42,14 +42,14 @@ dp = updater.dispatcher
 import logging
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-# -------------------------Connect to DataBase-------------------------#
+# -------------------------Connect to DataBase------------------------- #
 import sqlite3
 
 con = sqlite3.connect("bot.db", check_same_thread=False)
 admins = ["IR_SIZATA_SIEGE", "alireza_rhm99"]
 
 
-# -------------------------Functions-------------------------#
+# -------------------------Functions------------------------- #
 def time():
     now = str(datetime.now())
     return now[0:10] + '-' + now[11:13] + '-' + now[14:16] + '-' + now[17:19]
@@ -745,6 +745,7 @@ def ShowActivities(update, context):
         except:
             context.bot.sendMessage(chat_id=update.message.chat_id, text='❌missing Description❌')
             break
+        try:
             if category == 'Website':
                 context.bot.sendMessage(chat_id=update.message.chat_id, text='📅' + date + '\n\n👤' + user + '\n\n🌐' + category + '🌐\n\n🔶' + subject + '\n\n🔷' + description)
             elif category == 'Android':
@@ -872,7 +873,7 @@ def Validate(file):
         myfile.close()
 
 
-# -------------------------Conversations-------------------------#
+# -------------------------Conversations------------------------- #
 user_activity = " "
 CATEGORY_A, SUBJECT_A, DESCRIPTION_A = range(3)
 
@@ -1050,7 +1051,7 @@ def cancel(update, context):
     return ConversationHandler.END
 
 
-# -------------------------Handlers-------------------------#
+# -------------------------Handlers------------------------- #
 start_handler = CommandHandler('start', Start)
 stats_handler = CommandHandler('stats', Stats)
 mystats_handler = CommandHandler('mystats', Mystats)
@@ -1074,7 +1075,7 @@ text_handler = MessageHandler(Filters.text, Text)
 forwarded_handler = MessageHandler(Filters.forwarded, Forwarded)
 reply_handler = MessageHandler(Filters.reply, Reply)
 cqh_handler = CallbackQueryHandler(CQH)
-# -------------------------Conversation Handlers-------------------------#
+# -------------------------Conversation Handlers------------------------- #
 send_activity_handler = ConversationHandler(
     entry_points=[CommandHandler('send_activity', SendActivity)],
 
@@ -1109,7 +1110,7 @@ send_project_handler = ConversationHandler(
 
     fallbacks=[CommandHandler('cancel', cancel)]
 )
-# -------------------------Add Handlers-------------------------#
+# -------------------------Add Handlers------------------------- #
 dp.add_handler(send_activity_handler)
 dp.add_handler(send_project_handler)
 dp.add_handler(start_handler)
@@ -1134,10 +1135,10 @@ dp.add_handler(scores_handler)
 dp.add_handler(add_score_handler)
 dp.add_handler(post_handler)
 dp.add_handler(job_handler)
-# -------------------------||||||||||||-------------------------#
+# -------------------------||||||||||||------------------------- #
 updater.start_polling()
 updater.idle()
-# -------------------------||||||||||||-------------------------#
+# -------------------------||||||||||||------------------------- #
 # CLI robots
 # API robots
 # what is CLI?
