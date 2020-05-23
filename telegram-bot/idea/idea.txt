@@ -1,0 +1,93 @@
+The features:
+    in the json file
+
+group title >>> update.message.chat.title
+group title >>> update.effective_chat.title
+if is group >>> update.effective_chat.type
+if new user >>> update.effective_chat.new_chat_members (.sth if exists or if the new user is joined just now)
+number of members >>> context.bot.get_chat_members_count(chat_id="group_chat_id")
+group admins >>> context.bot.get_chat_administrators(chat_id=update.effective_chat.id)
+then a for loop must be applied to get the information of the chat_members(admins)
+get a custom title of a member(post of a member) >>> chat_member.custom_title (if available)
+find the creator of group >>> chat_member.status = "creator"
+check if message edited >>> if update.effective_message.edit_date:
+add bot to group >>> http://t.me/id?startgroup=new
+
+
+
+
+update: {
+    'update_id': 826726866,
+    'message': {
+        'message_id': 57,
+        'date': 1590085260,
+        'chat': {
+            'id': -1001266984363,
+            'type': 'supergroup',
+            'title': 'Test-bot-group'
+        },
+        'text': '/start',
+        'entities': [{
+            'type': 'bot_command',
+            'offset': 0,
+            'length': 6
+        }],
+        'caption_entities': [],
+        'photo': [],
+        'new_chat_members': [],
+        'new_chat_photo': [],
+        'delete_chat_photo': False,
+        'group_chat_created': False,
+        'supergroup_chat_created': False,
+        'channel_chat_created': False,
+        'from': {
+            'id': 753039129,
+            'first_name': 'SIZATA',
+            'is_bot': False,
+            'last_name': 'SIEGE',
+            'username': 'IR_SIZATA_SIEGE',
+            'language_code': 'fa'
+        }},
+        '_effective_user': {
+            'id': 753039129,
+            'first_name': 'SIZATA',
+            'is_bot': False,
+            'last_name': 'SIEGE',
+            'username': 'IR_SIZATA_SIEGE',
+            'language_code': 'fa'
+        },
+        '_effective_chat': {
+            'id': -1001266984363,
+            'type': 'supergroup',
+            'title': 'Test-bot-group'
+        },
+        '_effective_message': {
+            'message_id': 57,
+            'date': 1590085260,
+            'chat': {
+                'id': -1001266984363,
+                'type': 'supergroup',
+                'title': 'Test-bot-group'
+            },
+            'text': '/start',
+            'entities': [{
+                'type': 'bot_command',
+                'offset': 0,
+                'length': 6
+            }],
+            'caption_entities': [],
+            'photo': [],
+            'new_chat_members': [],
+            'new_chat_photo': [],
+            'delete_chat_photo': False,
+            'group_chat_created': False,
+            'supergroup_chat_created': False,
+            'channel_chat_created': False,
+            'from': {
+                'id': 753039129,
+                'first_name': 'SIZATA',
+                'is_bot': False,
+                'last_name': 'SIEGE',
+                'username': 'IR_SIZATA_SIEGE',
+                'language_code': 'fa'
+}}}

@@ -7,7 +7,7 @@ voice_score_per_second = 0.5
 voice_score_per_minute = voice_score_per_second * 60
 link_score = 20
 
-scores = {
+default_scoring_rules = {
     'text': 30,
     'word': 1,
     'forward': 35,
@@ -26,49 +26,49 @@ scores = {
 def set_text_score(score):
     global text_score
     text_score = score
-    scores['text'] = score
+    default_scoring_rules['text'] = score
 
 
 def set_word_score(score):
     global word_score
     word_score = score
-    scores['word'] = score
+    default_scoring_rules['word'] = score
 
 
 def set_forward_score(score):
     global forward_score
     forward_score = score
-    scores['forward'] = score
+    default_scoring_rules['forward'] = score
 
 
 def set_reply_score(score):
     global reply_score
     reply_score = score
-    scores['reply'] = score
+    default_scoring_rules['reply'] = score
 
 
 def set_voice_score(score):
     global voice_score
     voice_score = score
-    scores['voice'] = score
+    default_scoring_rules['voice'] = score
 
 
 def set_voice_score_per_second(score):
     global voice_score_per_second
     voice_score_per_second = score
-    scores['voice_per_second'] = score
+    default_scoring_rules['voice_per_second'] = score
 
 
 def set_voice_score_per_minute(score):
     global voice_score_per_minute
     voice_score_per_minute = score
-    scores['voice_per_minute'] = score
+    default_scoring_rules['voice_per_minute'] = score
 
 
 def set_link_score(score):
     global link_score
     link_score = score
-    scores['link'] = score
+    default_scoring_rules['link'] = score
 
 
 # print(scores['text'])

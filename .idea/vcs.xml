@@ -3,5 +3,6 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/bot-telegram/8888" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/test-heroku" vcs="Git" />
   </component>
 </project>

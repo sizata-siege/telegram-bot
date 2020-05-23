@@ -1,0 +1,7 @@
+{
+  "/google" : "searches in the google and returns the result as a link or maybe lists the results as a specific link for each one",
+  "/release" : "Only in groups >>> sends / releases all the scores in the group",
+  "/register_all_admins" : "registers all admins as assistants",
+  "/refresh_posts" : "registers / refreshes the posts of members based on their custom title in the group",
+  "/code" : "sends the sent message with placing `` before and after it and place the senders name at the first"
+}

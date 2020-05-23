@@ -1,0 +1,7 @@
+ERROR:root:Hi all
+ERROR:root:Hi all
+INFO:root:Hi all
+WARNING:root:Hi all
+2020-04-20 09:37:32,671 - root - ERROR - Hi all
+2020-04-20 09:37:32,672 - root - INFO - Hi all
+2020-04-20 09:37:32,672 - root - WARNING - Hi all
